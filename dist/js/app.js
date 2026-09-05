@@ -102,7 +102,7 @@ function scheduleTurn(delay=1050/speed){
     const r=executePlannedTurn(b);game.hp=b.player.hp;
     if(b.outcome)b.phase='ended';
     if(b.phase==='plan'){slot=0;delete b.windowStart;toast('次の5手が見えた。残ったカードで組み立てよう。');}
-    audio.play(r.damageToPlayer||r.damageToEnemy?'attack':r.healPlayer?'heal':'guard');world?.impact('player',r.damageToPlayer);
+    audio.play(r.damageToPlayer||r.damageToEnemy?'attack':r.healPlayer?'heal':'guard');world?.impact('enemy',r.damageToEnemy);world?.impact('player',r.damageToPlayer);
     $('#fx').className=r.damageToPlayer?'hurt':r.healPlayer?'healed':'blocked';setTimeout(()=>$('#fx').className='',280);
     save();renderBattle();scheduleTurn();
   },delay);

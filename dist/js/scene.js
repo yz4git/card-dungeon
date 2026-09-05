@@ -4,7 +4,7 @@ import { DIRS, posKey } from './engine.js';
 const TILE=4;
 export class DungeonView {
   constructor(host,onFallback=()=>{}) {
-    this.host=host;this.onFallback=onFallback;this.time=0;this.map=null;this.mode='title';this.target=new THREE.Vector3(0,1.55,0);this.angle=0;this.targetAngle=0;this.eventMeshes=[];this.materials=[];
+    this.host=host;this.onFallback=onFallback;this.time=0;this.map=null;this.mode='title';this.target=new THREE.Vector3(0,1.55,0);this.angle=0;this.targetAngle=0;this.eventMeshes=[];this.materials=[];this.enemyHit=0;
     try {
       this.renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:'low-power'});
       this.renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.65));
@@ -117,13 +117,13 @@ export class DungeonView {
       item.obj.visible=!item.cell.cleared||item.kind==='stairs';
       if(item.kind==='enemy'){
         const active=item.cell.x===p.x&&item.cell.z===p.z;
-        item.obj.position.set(item.cell.x*TILE+(active?dx*.9:0),1.3,item.cell.z*TILE+(active?dz*.9:0));
+        item.active=active&&inBattle;item.baseX=item.cell.x*TILE+(active?dx*.9:0);item.baseZ=item.cell.z*TILE+(active?dz*.9:0);item.obj.position.set(item.baseX,1.3,item.baseZ);
         if(active&&inBattle)item.obj.visible=true;
       }
     }
     this.battleView=inBattle;this.size();
   }
-  impact(who,damage){this.shake=who==='player'&&damage>0?.12:.025;this.hitTime=performance.now();}
+  impact(who,damage){if(who==='enemy'&&damage>0){this.enemyHit=Math.min(.34,.10+damage*.006);this.hitTime=performance.now();return;}this.shake=who==='player'&&damage>0?.12:.025;this.hitTime=performance.now();}
   size(){
     const width=this.host.clientWidth||innerWidth,height=this.host.clientHeight||innerHeight;
     this.width=width;this.height=height;
@@ -158,7 +158,7 @@ export class DungeonView {
     if(this.mode==='title'){this.camera.position.x=Math.sin(this.time*.13)*.12;this.camera.rotation.y=Math.sin(this.time*.11)*.035;}
     this.lamp.position.copy(this.camera.position);this.lamp.position.x+=.5;this.lamp.position.y=2.1;this.lamp.intensity=20+Math.sin(this.time*7)*1.5+Math.sin(this.time*12)*.7;
     this.fill.position.copy(this.camera.position);this.fill.position.x-=Math.sin(this.angle)*5;this.fill.position.z-=Math.cos(this.angle)*5;this.fill.position.y=1.6;
-    for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible)item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025;
+    for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible){const hit=item.active?(this.enemyHit||0):0;item.obj.position.x=(item.baseX??item.obj.position.x)+Math.sin(now*.19)*hit;item.obj.position.z=item.baseZ??item.obj.position.z;item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025+Math.abs(Math.sin(now*.14))*hit*.16;const sx=2.65*(1+hit*.12),sy=2.65*(1-hit*.08);item.obj.scale.set(sx,sy,1);}this.enemyHit=(this.enemyHit||0)*.72;
     this.renderer.render(this.scene,this.camera);
   }
 }
