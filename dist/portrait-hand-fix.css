@@ -1,9 +1,9 @@
-/* Portrait battle selection: cards take priority and the hand never gets covered. */
+/* Portrait battle selection: show only essential combat status and give cards the screen. */
 @media (max-aspect-ratio:1/1){
-  /* During planning, shrink the 3D stage and give the card UI most of the screen. */
+  /* Planning becomes: compact HP/status strip + large card workspace. */
   .battle-layout.planning-enhanced{
     grid-template-columns:1fr!important;
-    grid-template-rows:clamp(86px,15vh,122px) minmax(0,1fr)!important;
+    grid-template-rows:clamp(74px,10.5vh,92px) minmax(0,1fr)!important;
     min-height:0!important;
     height:100%!important;
   }
@@ -11,50 +11,139 @@
     min-height:0!important;
     height:auto!important;
     overflow:hidden!important;
-    padding:7px 12px!important;
+    padding:6px 10px!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    grid-template-rows:1fr!important;
+    align-items:center!important;
+    gap:10px!important;
+    background:linear-gradient(180deg,#08131ce8,#071018f2)!important;
+    border-bottom:1px solid #ffffff12!important;
   }
+  /* Only enemy HP/status and player HP/status remain visible during card selection. */
+  .battle-layout.planning-enhanced .battle-enemy,
+  .battle-layout.planning-enhanced .player-vitals{
+    position:relative!important;
+    inset:auto!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    min-width:0!important;
+    align-self:center!important;
+  }
+  .battle-layout.planning-enhanced .battle-enemy>.eyebrow,
+  .battle-layout.planning-enhanced .battle-enemy>h2,
+  .battle-layout.planning-enhanced .battle-feedback,
+  .battle-layout.planning-enhanced .fallback-portrait{
+    display:none!important;
+  }
+  .battle-layout.planning-enhanced .battle-enemy .health-label,
+  .battle-layout.planning-enhanced .player-vitals .health-label{
+    margin-bottom:4px!important;
+    font-size:10px!important;
+  }
+  .battle-layout.planning-enhanced .battle-enemy .health-label strong,
+  .battle-layout.planning-enhanced .player-vitals .health-label strong{
+    font-size:18px!important;
+  }
+  .battle-layout.planning-enhanced .battle-enemy .health-track,
+  .battle-layout.planning-enhanced .player-vitals .health-track{
+    height:6px!important;
+  }
+  .battle-layout.planning-enhanced .status-line{
+    margin-top:4px!important;
+    min-height:13px!important;
+    font-size:9px!important;
+    line-height:1.25!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
   .battle-layout.planning-enhanced .battle-panel{
     min-height:0!important;
     height:auto!important;
     overflow:hidden!important;
     display:flex!important;
     flex-direction:column!important;
-    padding-top:6px!important;
-    padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;
+    padding-top:5px!important;
+    padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))!important;
   }
+  /* The plan title/turn counter are redundant once the board is visible. */
   .battle-layout.planning-enhanced .battle-heading{
-    flex:0 0 auto!important;
-    margin-bottom:4px!important;
-  }
-  .battle-layout.planning-enhanced .battle-heading h3{
-    margin-top:1px!important;
+    display:none!important;
   }
 
-  /* Enemy and player cards are large enough to read as actual cards, not tiny status boxes. */
+  /* Enemy and placed player cards get the reclaimed vertical space. */
   .battle-layout.planning-enhanced .duel-board{
     flex:0 0 auto!important;
-    padding:7px 6px 9px!important;
+    padding:8px 6px 10px!important;
+    margin:0 0 5px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-label,
+  .battle-layout.planning-enhanced .duel-board .plan-label{
+    min-height:22px!important;
     margin-bottom:5px!important;
-  }
-  .battle-layout.planning-enhanced .duel-board .forecast-card{
-    min-height:68px!important;
-  }
-  .battle-layout.planning-enhanced .duel-board .plan-slot{
-    min-height:70px!important;
-    padding-top:7px!important;
-    padding-bottom:7px!important;
-  }
-  .battle-layout.planning-enhanced .duel-board .plan-slot strong{
     font-size:10px!important;
   }
-  .battle-layout.planning-enhanced .duel-board .plan-slot>span:not(.slot-number):not(.empty-slot){
-    font-size:13px!important;
+  .battle-layout.planning-enhanced .duel-board .plan-label{
+    margin-top:8px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-label span:last-child,
+  .battle-layout.planning-enhanced .duel-board .plan-label small{
+    font-size:8px!important;
+  }
+  .battle-layout.planning-enhanced .duel-lanes{
+    inset:31px 5px 9px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-card{
+    min-height:84px!important;
+    padding:7px 3px 8px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-card strong{
+    font-size:11px!important;
+    line-height:1.15!important;
+    max-width:100%!important;
+    white-space:normal!important;
+    text-align:center!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-card .forecast-value{
+    font-size:22px!important;
+    line-height:1!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-card .turn-label{
+    font-size:9px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .forecast-card small{
+    display:block!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    font-size:8px!important;
+    line-height:1.1!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .plan-slot{
+    min-height:90px!important;
+    padding:8px 3px 9px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .plan-slot strong{
+    font-size:11px!important;
+    line-height:1.15!important;
+    white-space:normal!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .plan-slot>span:not(.slot-number):not(.empty-slot):not(.effect-traits){
+    font-size:16px!important;
+    line-height:1!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .plan-slot .slot-number{
+    font-size:9px!important;
   }
   .battle-layout.planning-enhanced .duel-board .plan-slot.target:after{
     bottom:-12px!important;
   }
 
-  /* Recommendation/advice is intentionally off. */
+  /* Recommendation/advice remains intentionally off. */
   .battle-layout.planning-enhanced .pick-guide,
   .battle-layout.planning-enhanced .planning-badge,
   .battle-layout.planning-enhanced .game-card.planning-recommended:after{
@@ -67,12 +156,12 @@
 
   .battle-layout.planning-enhanced .hand-label{
     flex:0 0 auto!important;
-    margin:1px 0 4px!important;
-    min-height:24px!important;
+    margin:0 0 4px!important;
+    min-height:22px!important;
   }
   .battle-layout.planning-enhanced .hand-scroll{
     flex:1 1 auto!important;
-    min-height:156px!important;
+    min-height:168px!important;
     max-height:none!important;
     overflow-y:auto!important;
     overflow-x:hidden!important;
@@ -87,34 +176,45 @@
     padding-bottom:10px!important;
   }
   .battle-layout.planning-enhanced .hand-scroll .game-card{
-    min-height:116px!important;
+    min-height:120px!important;
   }
 
-  /* No instructional overlay on top of card contents. Scrolling remains enabled. */
+  /* No instructional overlay on top of card contents. */
   .battle-layout.planning-enhanced .hand-scroll-cue,
   .hand-scroll>.hand-scroll-cue{
     display:none!important;
   }
 
+  /* Bottom copy is removed; only the resolve button remains. */
   .battle-layout.planning-enhanced .battle-bottom{
     flex:0 0 auto!important;
     position:relative!important;
     z-index:8!important;
-    margin-top:5px!important;
+    margin-top:4px!important;
     padding-bottom:max(0px,env(safe-area-inset-bottom,0px))!important;
     background:linear-gradient(180deg,#07101800,#071018 24%)!important;
+  }
+  .battle-layout.planning-enhanced .battle-bottom .battle-hint{
+    display:none!important;
+  }
+  .battle-layout.planning-enhanced .resolve-button{
+    min-height:48px!important;
+    margin-top:0!important;
   }
 }
 
 /* Short portrait phones keep the same hierarchy without clipping the hand. */
 @media (max-aspect-ratio:1/1) and (max-height:760px){
   .battle-layout.planning-enhanced{
-    grid-template-rows:82px minmax(0,1fr)!important;
+    grid-template-rows:70px minmax(0,1fr)!important;
   }
-  .battle-layout.planning-enhanced .battle-stage{padding-block:5px!important}
-  .battle-layout.planning-enhanced .battle-heading h3{font-size:16px!important}
-  .battle-layout.planning-enhanced .duel-board .forecast-card{min-height:60px!important}
-  .battle-layout.planning-enhanced .duel-board .plan-slot{min-height:62px!important}
-  .battle-layout.planning-enhanced .hand-scroll{min-height:138px!important}
-  .battle-layout.planning-enhanced .hand-scroll .game-card{min-height:108px!important}
+  .battle-layout.planning-enhanced .battle-stage{padding-block:4px!important}
+  .battle-layout.planning-enhanced .battle-enemy .health-label strong,
+  .battle-layout.planning-enhanced .player-vitals .health-label strong{font-size:16px!important}
+  .battle-layout.planning-enhanced .duel-board .forecast-card{min-height:74px!important}
+  .battle-layout.planning-enhanced .duel-board .plan-slot{min-height:78px!important}
+  .battle-layout.planning-enhanced .duel-board .forecast-card strong,
+  .battle-layout.planning-enhanced .duel-board .plan-slot strong{font-size:10px!important}
+  .battle-layout.planning-enhanced .hand-scroll{min-height:145px!important}
+  .battle-layout.planning-enhanced .hand-scroll .game-card{min-height:110px!important}
 }
