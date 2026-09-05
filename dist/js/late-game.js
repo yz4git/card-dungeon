@@ -81,7 +81,7 @@ function decorateDeck(g){
   const panelSig=[g.floor,summary.counts.attack,summary.counts.guard,summary.counts.heal,summary.counts.focus,summary.averageRank.toFixed(1),applying].join('|');
   if(panel.dataset.signature!==panelSig){
     panel.dataset.signature=panelSig;
-    panel.innerHTML=`<div><span class="advisor-kicker">SMART BUILD · B${g.floor}F</span><strong>オススメ15枚</strong><small>攻${summary.counts.attack}・防${summary.counts.guard}・回${summary.counts.heal}・強${summary.counts.focus} / 平均R ${summary.averageRank.toFixed(1)}</small></div><button class="secondary advisor-apply" data-late-action="apply-recommended" ${applying?'disabled':''}>${applying?'編成中…':'オススメ編成を適用'}</button>`;
+    panel.innerHTML=`<div><span class="advisor-kicker">SMART BUILD · B${g.floor}F</span><strong>オススメ15枚</strong><small>攻${summary.counts.attack}・防${summary.counts.guard}・回${summary.counts.heal}・強${summary.counts.focus} / 平均R ${summary.averageRank.toFixed(1)}</small><em class="advisor-auto-note">所持カードから15枚を自動選択して即反映</em></div><button class="primary advisor-apply advisor-auto-set" data-late-action="apply-recommended" aria-label="おすすめ15枚を自動セット" ${applying?'disabled':''}>${applying?'自動セット中…':'自動オススメセット'}</button>`;
   }
   const selectedEl=deckGrid.querySelector('.game-card.selected'),selected=findCard(g,selectedEl?.dataset.uid);
   modal.querySelectorAll('.game-card[data-uid]').forEach(el=>{
