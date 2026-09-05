@@ -1,4 +1,4 @@
-const CACHE = 'card-dungeon-v1.0.14';
+const CACHE = 'card-dungeon-v1.0.15';
 const CORE = [
   './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css','./battle-actor-fx.css','./encounter-transition.css','./victory-transition.css','./explore-toast-position.css',
   './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/battle-actor-fx.js','./js/encounter-transition.js','./js/victory-transition.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
