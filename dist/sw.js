@@ -1,12 +1,12 @@
-const CACHE = 'card-dungeon-v1.0.7';
+const CACHE = 'card-dungeon-v1.0.8';
 const CORE = [
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css',
-  './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css',
+  './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './lib/three.module.min.js','./assets/enemies.webp','./assets/icon.svg','./manifest.webmanifest'
 ];
 const NETWORK_FIRST = new Set([
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css',
-  './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css',
+  './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './manifest.webmanifest'
 ].map(path=>new URL(path,self.registration.scope).pathname));
 const IMMUTABLE = new Set([
