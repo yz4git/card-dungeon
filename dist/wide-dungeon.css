@@ -1,21 +1,20 @@
-/* True widescreen dungeon viewport for portrait exploration. */
+/* Portrait dungeon stays portrait; the camera projection supplies the wide view. */
 @media (max-aspect-ratio:1/1){
   body[data-mode="explore"] #world{overflow:hidden!important}
   body[data-mode="explore"] #world canvas{
     position:absolute!important;
-    left:0!important;
-    top:clamp(96px,16.5vh,148px)!important;
-    width:100vw!important;
-    height:62.5vw!important;
-    max-height:42vh!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    max-height:none!important;
     transform:none!important;
     transform-origin:center!important;
     filter:brightness(1.24) contrast(1.025) saturate(1)!important;
-    box-shadow:0 18px 44px #0009,0 -12px 36px #0007!important;
+    box-shadow:none!important;
   }
   body[data-mode="explore"] .vignette{
-    background:linear-gradient(180deg,#02070c88 0%,#02070c40 11%,transparent 18%,transparent 53%,#02070c2a 62%,#02070c96 78%,#02070ccb 100%)!important;
+    background:linear-gradient(180deg,#02070c78 0%,#02070c38 11%,transparent 19%,transparent 68%,#02070c42 79%,#02070cb8 100%)!important;
   }
-  body[data-mode="explore"] .explore-top{background:linear-gradient(180deg,#050d14ee 0%,#050d14b5 68%,transparent 100%)!important}
-  body[data-mode="explore"] .explore-bottom{background:linear-gradient(0deg,#050d14f5 0%,#050d14d8 62%,transparent 100%)!important}
+  body[data-mode="explore"] .explore-top{background:linear-gradient(180deg,#050d14e8 0%,#050d1498 64%,transparent 100%)!important}
+  body[data-mode="explore"] .explore-bottom{background:linear-gradient(0deg,#050d14ef 0%,#050d14c7 57%,transparent 100%)!important}
 }
