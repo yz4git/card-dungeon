@@ -28,10 +28,74 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare fresh Pages artifact
+        env:
+          BUILD_SHA: ${{ github.sha }}
+        run: |
+          rm -rf _site
+          cp -a dist _site
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          sha = os.environ['BUILD_SHA'][:12]
+          index = Path('_site/index.html')
+          html = index.read_text(encoding='utf-8')
+          assets = [
+              './manifest.webmanifest',
+              './style.css',
+              './enhancements.css',
+              './js/app.js',
+              './js/enhancements.js',
+          ]
+          for asset in assets:
+              html = html.replace(asset, f'{asset}?v={sha}')
+          marker = '<meta name="theme-color" content="#071018">'
+          html = html.replace(marker, f'<meta name="build-id" content="{sha}">\n  {marker}', 1)
+          index.write_text(html, encoding='utf-8')
+
+          latest = f'''<!doctype html>
+          <html lang="ja">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+            <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+            <meta http-equiv="Pragma" content="no-cache">
+            <meta http-equiv="Expires" content="0">
+            <meta name="theme-color" content="#071018">
+            <title>CARD DUNGEON — 最新版を開く</title>
+            <style>
+              html,body{{margin:0;width:100%;height:100%;background:#071018;color:#e5e4dc;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif}}
+              body{{display:grid;place-items:center;text-align:center}}
+              main{{padding:28px}}
+              b{{display:block;font-size:18px;letter-spacing:1px;margin-bottom:12px}}
+              p{{color:#9fb0b7;line-height:1.8;font-size:14px}}
+            </style>
+          </head>
+          <body><main><b>CARD DUNGEON</b><p>最新版の公開データを読み直しています…</p></main>
+          <script>
+          (async()=>{{
+            const build='{sha}';
+            try{{
+              if('serviceWorker' in navigator){{
+                const regs=await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.filter(r=>r.scope.startsWith(location.origin+location.pathname.replace(/latest\\.html.*$/,''))).map(r=>r.unregister()));
+              }}
+              if('caches' in window){{
+                const keys=await caches.keys();
+                await Promise.all(keys.filter(k=>k.startsWith('card-dungeon-')).map(k=>caches.delete(k)));
+              }}
+            }}catch(e){{}}
+            location.replace('./?v='+build);
+          }})();
+          </script></body></html>'''
+          Path('_site/latest.html').write_text(latest, encoding='utf-8')
+          PY
+
       - name: Upload game artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./dist
+          path: ./_site
 
       - name: Deploy to GitHub Pages
         id: deployment
