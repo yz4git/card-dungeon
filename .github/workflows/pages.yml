@@ -68,7 +68,7 @@ jobs:
           fallback_old = "const a=-this.angle+(i/w-.5)*1.15;let d=.03;"
           fallback_new = "const spread=(this.mode==='explore'&&this.height>this.width)?1.72:1.15,a=-this.angle+(i/w-.5)*spread;let d=.03;"
           fallback_cos_old = "const hh=Math.min(h,h/(d*Math.cos((i/w-.5)*1.15)*1.5)),shade=Math.max(19,85-d*12);"
-          fallback_cos_new = "const spread=(this.mode==='explore'&&this.height>this.width)?1.72:1.15,hh=Math.min(h,h/(d*Math.cos((i/w-.5)*spread)*1.5)),shade=Math.max(19,85-d*12);"
+          fallback_cos_new = "const hh=Math.min(h,h/(d*Math.cos((i/w-.5)*spread)*1.5)),shade=Math.max(19,85-d*12);"
           for old, new in [(size_old,size_new),(tick_old,tick_new),(fallback_old,fallback_new),(fallback_cos_old,fallback_cos_new)]:
               count = scene_js.count(old)
               if count != 1:
