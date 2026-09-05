@@ -85,6 +85,7 @@ jobs:
               './cinematic.css',
               './wide-dungeon.css',
               './battle-planning.css',
+              './portrait-hand-fix.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
