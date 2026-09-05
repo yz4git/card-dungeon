@@ -91,6 +91,7 @@ jobs:
               './battle-actor-fx.css',
               './encounter-transition.css',
               './victory-transition.css',
+              './explore-toast-position.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
