@@ -87,6 +87,7 @@ jobs:
               './battle-planning.css',
               './portrait-hand-fix.css',
               './battle-polish.css',
+              './card-focus.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
