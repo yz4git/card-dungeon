@@ -1,0 +1,244 @@
+name: Implement Battle Actor FX
+
+on:
+  push:
+    paths:
+      - '.github/workflows/implement-battle-actor-fx.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Implement actor-centric battle FX
+        run: |
+          cat > dist/js/cinematic.js <<'EOF'
+          import { CARDS } from './data.js';
+
+          const fx=document.getElementById('fx');
+          const screen=document.getElementById('screen');
+          const app=document.getElementById('app');
+          const state={lastTurn:null,queued:false,timers:[]};
+          const BY_NAME=Object.fromEntries(Object.entries(CARDS).map(([key,value])=>[value.name,{...value,key}]));
+          const glyph=type=>({attack:'↗',guard:'◇',heal:'✚',focus:'◆'})[type]||'◆';
+          const cardType=el=>['attack','guard','heal','focus'].find(type=>el?.classList.contains(type))||'focus';
+          const numberFrom=(text,re)=>{const m=text.match(re);return m?Number(m[1]):0;};
+          const later=(fn,delay)=>{const id=setTimeout(fn,delay);state.timers.push(id);return id;};
+
+          function clearTimers(){state.timers.forEach(clearTimeout);state.timers.length=0;}
+          function clearCinematic(){
+            clearTimers();
+            fx?.querySelectorAll('[class*="cinematic-"],[class*="cine-"],[class*="actor-"]').forEach(el=>el.remove());
+            app?.classList.remove('cine-shake-light','cine-shake-heavy','cine-hitstop');
+          }
+          function make(className,parent=fx){const el=document.createElement('div');el.className=className;parent?.append(el);return el;}
+          function place(el,point){if(!el||!point)return;el.style.left=`${point.x}px`;el.style.top=`${point.y}px`;}
+          function stageRect(){return document.querySelector('.battle-stage')?.getBoundingClientRect()||null;}
+          function getPoints(){
+            const r=stageRect();
+            if(!r)return{enemy:null,player:null};
+            return{
+              enemy:{x:r.left+r.width*.5,y:r.top+r.height*.39},
+              player:{x:r.left+r.width*.5,y:r.bottom-Math.max(34,Math.min(64,r.height*.09))}
+            };
+          }
+          function cardIntro(data){
+            const r=stageRect();if(!r||!fx)return;
+            const intro=make('cinematic-turn');
+            intro.style.left=`${r.left+r.width/2}px`;intro.style.top=`${Math.max(r.top+50,r.top+r.height*.31)}px`;intro.style.width=`${Math.min(520,Math.max(250,r.width-20))}px`;
+            intro.innerHTML=`<div class="cine-turn-no">TURN ${String(data.turn).padStart(2,'0')}</div><div class="cine-card-row"><div class="cine-card cine-player ${data.playerType}"><i>${glyph(data.playerType)}</i><b>${data.playerCard}</b></div><span class="cine-clash">×</span><div class="cine-card cine-enemy ${data.enemyType}"><i>${glyph(data.enemyType)}</i><b>${data.enemyCard}</b></div></div>`;
+          }
+          function playerPresence(point){
+            const el=make('actor-player-presence');place(el,point);
+            el.innerHTML='<i></i><i></i><b>YOU</b>';
+          }
+          function beam(from,to,side,pierce=false,counter=false){
+            if(!from||!to)return;
+            const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx)*180/Math.PI;
+            const el=make(`actor-beam ${side}${pierce?' pierce':''}${counter?' counter':''}`);
+            el.style.left=`${from.x}px`;el.style.top=`${from.y}px`;el.style.width=`${d}px`;el.style.transform=`rotate(${a}deg)`;
+            el.innerHTML='<i class="actor-beam-glow"></i><i class="actor-beam-core"></i><i class="actor-beam-edge"></i><span></span><span></span><span></span><span></span>';
+          }
+          function impact(point,side,kind='hit'){
+            const el=make(`actor-impact ${side} ${kind}`);place(el,point);
+            el.innerHTML='<i></i><i></i><i></i><i></i><b></b>';
+          }
+          function shield(point,side,blocked=false){
+            const el=make(`actor-shield ${side}${blocked?' blocked':''}`);place(el,point);
+            el.innerHTML='<i></i><i></i><i></i><b>◇</b><span>GUARD</span>';
+          }
+          function poison(point,side){
+            const el=make(`actor-poison ${side}`);place(el,point);
+            el.innerHTML='<b>POISON</b>'+Array.from({length:10},(_,i)=>`<i style="--i:${i}"></i>`).join('');
+          }
+          function heal(point,side){
+            const el=make(`actor-heal ${side}`);place(el,point);
+            el.innerHTML='<b>✚</b><span>RECOVER</span><i></i><i></i><i></i><i></i>';
+          }
+          function focus(point,side){
+            const el=make(`actor-focus ${side}`);place(el,point);
+            el.innerHTML='<b>◆</b><span>FOCUS</span><i></i><i></i><i></i>';
+          }
+          function cleanse(point,side){
+            const el=make(`actor-cleanse ${side}`);place(el,point);
+            el.innerHTML='<b>✦</b><span>CLEANSE</span><i></i><i></i>';
+          }
+          function regen(point,side){
+            const el=make(`actor-regen ${side}`);place(el,point);
+            el.innerHTML='<b>＋</b><span>REGEN</span><i></i><i></i><i></i>';
+          }
+          function drain(from,to,side){
+            if(!from||!to)return;
+            const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx)*180/Math.PI;
+            const el=make(`actor-drain ${side}`);el.style.left=`${from.x}px`;el.style.top=`${from.y}px`;el.style.width=`${d}px`;el.style.transform=`rotate(${a}deg)`;
+            el.innerHTML='<i></i><i></i><i></i>';
+          }
+          function resultNumber(point,text,kind){if(!point||!text)return;const el=make(`cinematic-number ${kind}`);el.textContent=text;place(el,point);}
+          function flash(kind){const el=make(`cinematic-flash ${kind}`);later(()=>el.remove(),360);}
+          function shake(heavy=false){
+            const cls=heavy?'cine-shake-heavy':'cine-shake-light';app?.classList.remove(cls);if(!app)return;void app.offsetWidth;app.classList.add(cls,'cine-hitstop');
+            later(()=>app.classList.remove('cine-hitstop'),90);later(()=>app.classList.remove(cls),410);
+          }
+          function action(def,type,from,to,side,blocked=false){
+            if(type==='attack'){
+              beam(from,to,side,!!def?.pierce,false);
+              later(()=>{impact(to,side,def?.pierce?'pierce':'hit');if(blocked)shield(to,side,true);flash(side);shake(!blocked);},170);
+            }else if(type==='guard')shield(from,side,false);
+            else if(type==='heal')heal(from,side);
+            else focus(from,side);
+            if(def?.cleanse)later(()=>cleanse(from,side),70);
+            if(def?.regen)later(()=>regen(from,side),180);
+          }
+          function specialAfter(def,from,to,side,dealt){
+            if(!def)return;
+            if(def.poison&&dealt>0)later(()=>poison(to,side),250);
+            if(def.drain&&dealt>0)later(()=>drain(to,from,side),330);
+          }
+          function play(data){
+            if(!fx)return;clearCinematic();const points=getPoints();if(!points.player||!points.enemy)return;
+            const pDef=BY_NAME[data.playerCard]||{},eDef=BY_NAME[data.enemyCard]||{};
+            playerPresence(points.player);cardIntro(data);flash('turn');
+            later(()=>{action(pDef,data.playerType,points.player,points.enemy,'player',data.enemyBlocked);specialAfter(pDef,points.player,points.enemy,'player',data.enemyDamage);if(data.playerType==='heal'&&data.healPlayer>0)resultNumber(points.player,`+${data.healPlayer}`,'heal');},230);
+            later(()=>{action(eDef,data.enemyType,points.enemy,points.player,'enemy',data.playerBlocked);specialAfter(eDef,points.enemy,points.player,'enemy',data.playerDamage);},650);
+            later(()=>{
+              if(data.enemyDamage>0)resultNumber(points.enemy,`−${data.enemyDamage}`,'enemy-damage');else if(data.enemyBlocked)resultNumber(points.enemy,'BLOCK','block');
+              if(data.playerDamage>0)resultNumber(points.player,`−${data.playerDamage}`,'player-damage');else if(data.playerBlocked)resultNumber(points.player,'BLOCK','block');
+              if(data.playerCounter>0){beam(points.player,points.enemy,'player',false,true);impact(points.enemy,'player','counter');resultNumber(points.enemy,`反撃 ${data.playerCounter}`,'counter');}
+              if(data.enemyCounter>0){beam(points.enemy,points.player,'enemy',false,true);impact(points.player,'enemy','counter');resultNumber(points.player,`反撃 ${data.enemyCounter}`,'counter');}
+            },900);
+            later(()=>{const r=stageRect();if(!r)return;const beat=make('cinematic-beat');beat.style.left=`${r.left+r.width/2}px`;beat.style.top=`${Math.min(r.bottom-44,r.top+r.height*.72)}px`;beat.textContent='NEXT';},1660);
+            later(clearCinematic,2080);
+          }
+          function readTurn(){
+            const feedback=document.querySelector('.battle-feedback');if(!feedback){state.lastTurn=null;return null;}
+            const label=feedback.querySelector(':scope > .eyebrow')?.textContent?.trim()||'';if(!label.startsWith('TURN'))return null;
+            const heading=feedback.querySelector(':scope > h3')?.textContent?.trim()||'',parts=heading.split(/\s+vs\s+/i);if(parts.length<2)return null;
+            const summary=feedback.querySelector(':scope > p')?.textContent||'',detail=feedback.querySelector(':scope > small')?.textContent||'',details=detail.split(' · ').map(v=>v.trim()).filter(Boolean);
+            return{label,turn:label.replace(/\D/g,'')||'',playerCard:parts[0],enemyCard:parts[1],enemyDamage:numberFrom(summary,/敵に\s*(\d+)/),playerDamage:numberFrom(summary,/被ダメージ\s*(\d+)/),healPlayer:numberFrom(summary,/回復\s*(\d+)/),playerBlocked:details.includes('攻撃を防いだ'),enemyBlocked:details.includes('敵が攻撃を防いだ'),playerCounter:numberFrom(detail,/あなたの反撃\s*(\d+)/),enemyCounter:numberFrom(detail,/敵の反撃\s*(\d+)/),playerType:cardType(document.querySelector('.plan-slot.active')),enemyType:cardType(document.querySelector('.forecast-card.active'))};
+          }
+          function enhance(){const data=readTurn();if(!data||state.lastTurn===data.label)return;state.lastTurn=data.label;play(data);}
+          function queue(){if(state.queued)return;state.queued=true;requestAnimationFrame(()=>{state.queued=false;enhance();});}
+          if(screen)new MutationObserver(queue).observe(screen,{childList:true,subtree:true});
+          window.addEventListener('pagehide',clearCinematic);queue();
+          EOF
+
+          cat > dist/battle-actor-fx.css <<'EOF'
+          /* Actor-centric combat presentation: foreground player at lower center, enemy in the stage center. */
+          #fx .actor-player-presence,#fx .actor-beam,#fx .actor-impact,#fx .actor-shield,#fx .actor-poison,#fx .actor-heal,#fx .actor-focus,#fx .actor-cleanse,#fx .actor-regen,#fx .actor-drain{position:absolute;z-index:43;pointer-events:none}
+          .actor-player-presence{width:150px;height:62px;transform:translate(-50%,-50%);opacity:.78;filter:drop-shadow(0 0 16px #73dcd780)}
+          .actor-player-presence:before{content:"";position:absolute;left:50%;bottom:3px;width:118px;height:26px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,#62d8d33d,transparent 68%);border-top:1px solid #a8f4ec88}
+          .actor-player-presence i{position:absolute;left:50%;bottom:10px;width:66px;height:3px;transform-origin:0 50%;background:linear-gradient(90deg,#fff,#e9dc9a 36%,transparent);box-shadow:0 0 9px #fff,0 0 18px #d9c278}
+          .actor-player-presence i:first-child{transform:rotate(-27deg) translateX(-3px)}.actor-player-presence i:nth-child(2){transform:rotate(-153deg) translateX(-3px)}
+          .actor-player-presence b{position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);font:900 7px/1 ui-sans-serif;color:#9bc9c9;letter-spacing:2.5px}
+          .actor-beam{height:30px;transform-origin:0 50%;margin-top:-15px;color:#ffe2a0;animation:actorBeam .55s cubic-bezier(.1,.8,.18,1) forwards;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 17px currentColor)}
+          .actor-beam.enemy{color:#ff7765}.actor-beam.pierce{color:#fff4b5;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 0 22px currentColor) drop-shadow(0 0 38px currentColor)}.actor-beam.counter{height:18px;animation-duration:.34s}
+          .actor-beam-glow,.actor-beam-core,.actor-beam-edge{position:absolute;left:0;right:0;top:50%;display:block;transform:translateY(-50%)}
+          .actor-beam-glow{height:20px;background:linear-gradient(90deg,transparent,currentColor 18%,#fff9 80%,transparent);clip-path:polygon(0 46%,88% 12%,100% 50%,88% 88%,0 56%);opacity:.3;filter:blur(4px)}
+          .actor-beam-core{height:3px;background:linear-gradient(90deg,transparent,currentColor 10%,#fff 70%,#fff 92%,transparent);box-shadow:0 0 5px #fff,0 0 13px currentColor}.actor-beam-edge{height:1px;top:38%;background:linear-gradient(90deg,transparent,currentColor,#fff,transparent);opacity:.55}
+          .actor-beam>span{position:absolute;width:18px;height:2px;background:#fff;box-shadow:0 0 6px #fff,0 0 11px currentColor;animation:actorShard .46s ease-out forwards}.actor-beam>span:nth-of-type(1){left:28%;top:3px;animation-delay:.03s}.actor-beam>span:nth-of-type(2){left:46%;top:23px;animation-delay:.08s}.actor-beam>span:nth-of-type(3){left:66%;top:5px;animation-delay:.12s}.actor-beam>span:nth-of-type(4){left:82%;top:22px;animation-delay:.16s}
+          .actor-impact{width:142px;height:142px;transform:translate(-50%,-50%);color:#ffe09a;animation:actorImpact .52s ease-out forwards;filter:drop-shadow(0 0 12px currentColor)}.actor-impact.enemy{color:#ff7767}.actor-impact.pierce{color:#fff5ba}.actor-impact.counter{width:105px;height:105px}
+          .actor-impact>i{position:absolute;left:8%;right:8%;top:50%;height:4px;background:linear-gradient(90deg,transparent,currentColor 18%,#fff 50%,currentColor 82%,transparent);box-shadow:0 0 7px #fff,0 0 15px currentColor}.actor-impact>i:nth-child(1){transform:rotate(-39deg)}.actor-impact>i:nth-child(2){transform:rotate(-12deg)}.actor-impact>i:nth-child(3){transform:rotate(21deg)}.actor-impact>i:nth-child(4){transform:rotate(51deg)}
+          .actor-impact>b{position:absolute;inset:30%;border:3px solid currentColor;border-radius:50%;box-shadow:0 0 20px currentColor,inset 0 0 18px currentColor;animation:actorRing .5s ease-out forwards}
+          .actor-shield{width:122px;height:122px;transform:translate(-50%,-50%);display:grid;place-items:center;color:#9be6ff;animation:actorShield .82s ease-out forwards}.actor-shield>i{position:absolute;inset:8%;border:2px solid currentColor;clip-path:polygon(50% 0,91% 18%,84% 74%,50% 100%,16% 74%,9% 18%);background:linear-gradient(135deg,#a9efff32,#1e86aa24);box-shadow:0 0 26px #79d9ff88,inset 0 0 26px #73d4ff38}.actor-shield>i:nth-child(2){inset:18%;opacity:.55}.actor-shield>i:nth-child(3){inset:29%;opacity:.28}.actor-shield b{font:900 54px/1 Georgia;text-shadow:0 0 18px #d8f8ff}.actor-shield span,.actor-poison b,.actor-heal span,.actor-focus span,.actor-cleanse span,.actor-regen span{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font:900 8px/1 ui-sans-serif;letter-spacing:2px;text-shadow:0 2px 7px #000}
+          .actor-poison{width:130px;height:100px;transform:translate(-50%,-50%);color:#9bea7b;background:radial-gradient(ellipse,#65ad4d38,transparent 65%);animation:actorCloud 1.05s ease-out forwards}.actor-poison b{bottom:2px}.actor-poison i{position:absolute;left:calc(8% + (var(--i) * 9%));bottom:20%;width:calc(8px + (var(--i) % 3)*4px);height:calc(8px + (var(--i) % 3)*4px);border-radius:50%;background:#93eb72aa;box-shadow:0 0 10px #7bdb61;animation:actorBubble .9s calc(var(--i)*.035s) ease-out forwards}
+          .actor-heal,.actor-focus,.actor-cleanse,.actor-regen{width:116px;height:116px;transform:translate(-50%,-50%);display:grid;place-items:center;animation:actorAura .95s ease-out forwards}.actor-heal{color:#78e9a2;background:radial-gradient(circle,#5edb8d42,transparent 65%)}.actor-focus{color:#c59aff;background:radial-gradient(circle,#b883ff3f,transparent 65%)}.actor-cleanse{color:#d8fff0;background:radial-gradient(circle,#a6ffe73b,transparent 65%)}.actor-regen{color:#9ee8ac;background:radial-gradient(circle,#79db9040,transparent 65%)}
+          .actor-heal>b,.actor-focus>b,.actor-cleanse>b,.actor-regen>b{font:900 46px/1 Georgia;text-shadow:0 0 18px currentColor}.actor-heal>i,.actor-focus>i,.actor-cleanse>i,.actor-regen>i{position:absolute;inset:12%;border:2px solid currentColor;border-radius:50%;animation:actorAuraRing .9s ease-out forwards}.actor-heal>i:nth-of-type(2),.actor-focus>i:nth-of-type(2),.actor-cleanse>i:nth-of-type(2),.actor-regen>i:nth-of-type(2){animation-delay:.14s}.actor-heal>i:nth-of-type(3),.actor-focus>i:nth-of-type(3),.actor-regen>i:nth-of-type(3){animation-delay:.28s}.actor-heal>i:nth-of-type(4){animation-delay:.4s}
+          .actor-drain{height:18px;transform-origin:0 50%;margin-top:-9px;color:#ff7892;animation:actorDrain .75s ease-out forwards}.actor-drain i{position:absolute;left:0;right:0;top:50%;height:2px;background:repeating-linear-gradient(90deg,transparent 0 8px,currentColor 9px 19px,transparent 20px 28px);box-shadow:0 0 8px currentColor}.actor-drain i:nth-child(2){top:30%;opacity:.6}.actor-drain i:nth-child(3){top:70%;opacity:.35}
+          .cinematic-number.counter{color:#ffe09a;font-size:clamp(19px,5vw,34px)}
+          @keyframes actorBeam{0%{opacity:0;clip-path:inset(0 100% 0 0)}18%{opacity:1}72%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+          @keyframes actorShard{0%{opacity:0;transform:translateX(-20px) scaleX(.3)}25%{opacity:1}100%{opacity:0;transform:translate(42px,-16px) scaleX(1.4)}}
+          @keyframes actorImpact{0%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(-18deg)}24%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(3deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35) rotate(14deg)}}
+          @keyframes actorRing{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(2.2)}}
+          @keyframes actorShield{0%{opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-8deg)}25%{opacity:1;transform:translate(-50%,-50%) scale(1.08) rotate(2deg)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.96)}}
+          @keyframes actorCloud{0%{opacity:0;transform:translate(-50%,-40%) scale(.45)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-65%) scale(1.18)}}
+          @keyframes actorBubble{0%{opacity:0;transform:translateY(16px) scale(.4)}25%{opacity:.9}100%{opacity:0;transform:translateY(-68px) scale(1.2)}}
+          @keyframes actorAura{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}24%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-64%) scale(1.15)}}
+          @keyframes actorAuraRing{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(1.7)}}
+          @keyframes actorDrain{0%{opacity:0;clip-path:inset(0 100% 0 0)}30%{opacity:1}70%{clip-path:inset(0 0 0 0)}100%{opacity:0}}
+          @media(max-aspect-ratio:1/1){.actor-player-presence{width:122px}.actor-impact{width:116px;height:116px}.actor-shield{width:96px;height:96px}.actor-poison{width:105px;height:86px}.actor-heal,.actor-focus,.actor-cleanse,.actor-regen{width:92px;height:92px}}
+          @media(prefers-reduced-motion:reduce){.actor-beam,.actor-impact,.actor-shield,.actor-poison,.actor-heal,.actor-focus,.actor-cleanse,.actor-regen,.actor-drain{animation:none!important;opacity:.92!important}.actor-beam>span,.actor-poison i{display:none!important}}
+          EOF
+
+          python - <<'PY'
+          from pathlib import Path
+
+          app=Path('dist/js/app.js')
+          text=app.read_text()
+          old="audio.play(r.damageToPlayer||r.damageToEnemy?'attack':r.healPlayer?'heal':'guard');world?.impact('player',r.damageToPlayer);"
+          new="audio.play(r.damageToPlayer||r.damageToEnemy?'attack':r.healPlayer?'heal':'guard');world?.impact('enemy',r.damageToEnemy);world?.impact('player',r.damageToPlayer);"
+          if old not in text and new not in text: raise SystemExit('app impact marker missing')
+          text=text.replace(old,new,1)
+          app.write_text(text)
+
+          scene=Path('dist/js/scene.js')
+          s=scene.read_text()
+          old="this.host=host;this.onFallback=onFallback;this.time=0;this.map=null;this.mode='title';this.target=new THREE.Vector3(0,1.55,0);this.angle=0;this.targetAngle=0;this.eventMeshes=[];this.materials=[];"
+          new="this.host=host;this.onFallback=onFallback;this.time=0;this.map=null;this.mode='title';this.target=new THREE.Vector3(0,1.55,0);this.angle=0;this.targetAngle=0;this.eventMeshes=[];this.materials=[];this.enemyHit=0;"
+          if old in s:s=s.replace(old,new,1)
+          old="item.obj.position.set(item.cell.x*TILE+(active?dx*.9:0),1.3,item.cell.z*TILE+(active?dz*.9:0));\n        if(active&&inBattle)item.obj.visible=true;"
+          new="item.active=active&&inBattle;item.baseX=item.cell.x*TILE+(active?dx*.9:0);item.baseZ=item.cell.z*TILE+(active?dz*.9:0);item.obj.position.set(item.baseX,1.3,item.baseZ);\n        if(active&&inBattle)item.obj.visible=true;"
+          if old not in s and new not in s:raise SystemExit('scene active marker missing')
+          s=s.replace(old,new,1)
+          old="impact(who,damage){this.shake=who==='player'&&damage>0?.12:.025;this.hitTime=performance.now();}"
+          new="impact(who,damage){if(who==='enemy'&&damage>0){this.enemyHit=Math.min(.34,.10+damage*.006);this.hitTime=performance.now();return;}this.shake=who==='player'&&damage>0?.12:.025;this.hitTime=performance.now();}"
+          if old not in s and new not in s:raise SystemExit('scene impact marker missing')
+          s=s.replace(old,new,1)
+          old="for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible)item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025;"
+          new="for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible){const hit=item.active?(this.enemyHit||0):0;item.obj.position.x=(item.baseX??item.obj.position.x)+Math.sin(now*.19)*hit;item.obj.position.z=item.baseZ??item.obj.position.z;item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025+Math.abs(Math.sin(now*.14))*hit*.16;const sx=2.65*(1+hit*.12),sy=2.65*(1-hit*.08);item.obj.scale.set(sx,sy,1);}this.enemyHit=(this.enemyHit||0)*.72;"
+          if old not in s and new not in s:raise SystemExit('scene enemy tick marker missing')
+          s=s.replace(old,new,1)
+          scene.write_text(s)
+
+          index=Path('dist/index.html')
+          h=index.read_text()
+          if './battle-actor-fx.css' not in h:h=h.replace('  <link rel="stylesheet" href="./card-focus.css">','  <link rel="stylesheet" href="./card-focus.css">\n  <link rel="stylesheet" href="./battle-actor-fx.css">')
+          index.write_text(h)
+
+          sw=Path('dist/sw.js')
+          w=sw.read_text().replace("card-dungeon-v1.0.9","card-dungeon-v1.0.10").replace("card-dungeon-v1.0.8","card-dungeon-v1.0.10")
+          if "'./battle-actor-fx.css'" not in w:
+              w=w.replace("'./battle-polish.css','./card-focus.css'","'./battle-polish.css','./card-focus.css','./battle-actor-fx.css'")
+          sw.write_text(w)
+
+          pages=Path('.github/workflows/pages.yml')
+          p=pages.read_text()
+          if "'./battle-actor-fx.css'," not in p:p=p.replace("              './card-focus.css',","              './card-focus.css',\n              './battle-actor-fx.css',")
+          pages.write_text(p)
+          PY
+
+      - name: Commit implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist/js/cinematic.js dist/battle-actor-fx.css dist/js/app.js dist/js/scene.js dist/index.html dist/sw.js .github/workflows/pages.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "Implement actor-centric battle effects"
+          git push origin HEAD:main
