@@ -4,6 +4,11 @@ on:
   push:
     paths:
       - '.github/workflows/playcheck-10f.yml'
+      - 'dist/js/data.js'
+      - 'dist/js/engine.js'
+      - 'dist/js/deck-advisor.js'
+      - 'scripts/playcheck-10f.mjs'
+      - 'tests/**'
   workflow_dispatch:
 
 permissions:
