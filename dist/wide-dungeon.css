@@ -1,20 +1,26 @@
-/* Portrait dungeon stays portrait; the camera projection supplies the wide view. */
+/* Portrait exploration: show the 3D dungeon in a clean 16:9 window.
+   The renderer itself uses the same aspect ratio, so the image is never stretched. */
 @media (max-aspect-ratio:1/1){
   body[data-mode="explore"] #world{overflow:hidden!important}
   body[data-mode="explore"] #world canvas{
     position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
+    left:0!important;
+    top:clamp(96px,15.5vh,142px)!important;
+    width:100vw!important;
+    height:56.25vw!important;
     max-height:none!important;
     transform:none!important;
     transform-origin:center!important;
     filter:brightness(1.24) contrast(1.025) saturate(1)!important;
-    box-shadow:none!important;
+    box-shadow:0 16px 38px #0008,0 -8px 28px #0005!important;
   }
   body[data-mode="explore"] .vignette{
-    background:linear-gradient(180deg,#02070c78 0%,#02070c38 11%,transparent 19%,transparent 68%,#02070c42 79%,#02070cb8 100%)!important;
+    background:linear-gradient(180deg,#02070c86 0%,#02070c48 11%,transparent 18%,transparent 54%,#02070c34 64%,#02070c9a 80%,#02070cc8 100%)!important;
   }
-  body[data-mode="explore"] .explore-top{background:linear-gradient(180deg,#050d14e8 0%,#050d1498 64%,transparent 100%)!important}
-  body[data-mode="explore"] .explore-bottom{background:linear-gradient(0deg,#050d14ef 0%,#050d14c7 57%,transparent 100%)!important}
+  body[data-mode="explore"] .explore-top{
+    background:linear-gradient(180deg,#050d14ec 0%,#050d14ac 67%,transparent 100%)!important;
+  }
+  body[data-mode="explore"] .explore-bottom{
+    background:linear-gradient(0deg,#050d14f2 0%,#050d14d0 60%,transparent 100%)!important;
+  }
 }
