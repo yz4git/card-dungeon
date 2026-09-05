@@ -84,9 +84,11 @@ jobs:
               './enhancements.css',
               './cinematic.css',
               './wide-dungeon.css',
+              './battle-planning.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
+              './js/battle-planning.js',
           ]
           for asset in assets:
               html = html.replace(asset, f'{asset}?v={sha}')
