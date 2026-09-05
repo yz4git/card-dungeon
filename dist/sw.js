@@ -1,11 +1,11 @@
-const CACHE = 'card-dungeon-v1.1.1';
+const CACHE = 'card-dungeon-v1.1.2';
 const CORE = [
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css','./battle-actor-fx.css','./encounter-transition.css','./victory-transition.css','./explore-toast-position.css','./late-game.css',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css','./battle-actor-fx.css','./encounter-transition.css','./victory-transition.css','./explore-toast-position.css','./late-game.css','./visual-cleanup.css',
   './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/battle-actor-fx.js','./js/encounter-transition.js','./js/victory-transition.js','./js/late-game.js','./js/deck-advisor.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './lib/three.module.min.js','./assets/enemies.webp','./assets/icon.svg','./manifest.webmanifest'
 ];
 const NETWORK_FIRST = new Set([
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css','./battle-actor-fx.css','./encounter-transition.css','./victory-transition.css','./explore-toast-position.css','./late-game.css',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css','./battle-actor-fx.css','./encounter-transition.css','./victory-transition.css','./explore-toast-position.css','./late-game.css','./visual-cleanup.css',
   './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/battle-actor-fx.js','./js/encounter-transition.js','./js/victory-transition.js','./js/late-game.js','./js/deck-advisor.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './manifest.webmanifest'
 ].map(path=>new URL(path,self.registration.scope).pathname));
