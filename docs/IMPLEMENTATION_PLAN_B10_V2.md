@@ -8,4 +8,4 @@ Scope requested: implement review priorities 1–5 while preserving the five-tur
 4. Add late-floor dungeon variety through new events/visual variation.
 5. Improve deck management for large collections, including an explicit recommended-deck feature.
 
-Implementation is in progress.
+Implementation is in progress. Existing gameplay rules remain the compatibility baseline.
