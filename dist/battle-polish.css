@@ -1,0 +1,224 @@
+/* Battle card readability + cinematic slash polish. Loaded after the existing battle styles. */
+
+/* Special effects are shown directly on enemy forecast cards and placed player cards. */
+.effect-traits{
+  position:absolute;
+  z-index:8;
+  left:4px;
+  right:4px;
+  bottom:4px;
+  display:flex;
+  justify-content:center;
+  gap:3px;
+  min-width:0;
+  pointer-events:none;
+}
+.effect-trait{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  max-width:100%;
+  padding:3px 5px;
+  border-radius:99px;
+  border:1px solid #ffffff26;
+  background:#071018de;
+  color:#cbd5d6;
+  font:900 8px/1 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;
+  font-style:normal;
+  letter-spacing:.3px;
+  white-space:nowrap;
+  box-shadow:0 2px 8px #0009,inset 0 1px #ffffff0b;
+  text-shadow:0 1px 4px #000;
+}
+.effect-trait.pierce{
+  color:#fff0a9;
+  border-color:#f4cf6c9e;
+  background:linear-gradient(180deg,#6a4e1be8,#20190ddf);
+  box-shadow:0 0 12px #f2cb6540,0 2px 8px #0009,inset 0 1px #fff3bb38;
+}
+.effect-trait.shatter{color:#ffd0a2;border-color:#df9b6888;background:#4a2919e8}
+.effect-trait.ambush{color:#f4c8ff;border-color:#c083d88a;background:#39213fe8}
+.effect-trait.drain{color:#ffb4be;border-color:#cf6e7d8a;background:#421c26e8}
+.effect-trait.poison{color:#b4ee9d;border-color:#79b96c88;background:#18391de8}
+.effect-trait.counter{color:#a9e9ff;border-color:#69b5d68c;background:#173442e8}
+.effect-trait.cleanse{color:#d4f6df;border-color:#8cc9a18a;background:#173325e8}
+.effect-trait.regen,.effect-trait.heal{color:#baf2c7;border-color:#73c78c88;background:#173624e8}
+
+.duel-board .forecast-card.has-effect-traits,
+.duel-board .plan-slot.has-effect-traits{
+  padding-bottom:23px!important;
+}
+.duel-board .forecast-card.enemy-effect-card.has-effect-traits{
+  box-shadow:inset 0 -18px 28px #0004,0 6px 13px #0005;
+}
+.duel-board .plan-slot.player-effect-card.target.has-effect-traits .effect-trait{
+  transform:scale(1.08);
+  border-color:#ffe3a8;
+  box-shadow:0 0 15px #efce7548,0 2px 8px #0009;
+}
+.battle-layout .hand-scroll .game-card.selected.has-effect-traits{
+  padding-bottom:26px;
+}
+
+/* The old trail was visually one flat diagonal line. Turn it into a tapered energy ribbon. */
+#fx .cinematic-trail{
+  height:24px!important;
+  margin-top:-8px;
+  border-radius:0!important;
+  background:none!important;
+  overflow:visible;
+  filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor) drop-shadow(0 0 28px #fff4)!important;
+}
+#fx .cinematic-trail:before{
+  left:-2%!important;
+  right:-3%!important;
+  top:50%!important;
+  height:16px!important;
+  transform:translateY(-50%)!important;
+  border-radius:0!important;
+  background:linear-gradient(90deg,transparent 0%,currentColor 18%,#fff9 68%,#fff 88%,transparent 100%)!important;
+  clip-path:polygon(0 45%,82% 18%,100% 48%,82% 82%,0 56%);
+  opacity:.28;
+  filter:blur(3px);
+}
+#fx .cinematic-trail:after{
+  left:0!important;
+  right:0!important;
+  top:50%!important;
+  height:2px!important;
+  transform:translateY(-50%)!important;
+  background:linear-gradient(90deg,transparent,currentColor 18%,#fff 72%,#fff 91%,transparent)!important;
+  opacity:1!important;
+  box-shadow:0 0 5px #fff,0 0 10px currentColor,0 0 22px currentColor;
+}
+.cine-trail-ribbon,
+.cine-trail-core,
+.cine-trail-shard{
+  position:absolute;
+  pointer-events:none;
+}
+.cine-trail-ribbon{
+  left:4%;
+  right:-2%;
+  top:50%;
+  height:9px;
+  transform:translateY(-50%);
+  clip-path:polygon(0 42%,88% 0,100% 50%,88% 100%,0 58%);
+  background:linear-gradient(90deg,transparent 0%,currentColor 30%,#fff8 75%,#fff 92%,transparent 100%);
+  opacity:.45;
+  filter:blur(1.2px);
+}
+.cine-trail-core{
+  left:8%;
+  right:-1%;
+  top:50%;
+  height:1px;
+  transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,currentColor 10%,#fff 66%,#fff 94%,transparent);
+  box-shadow:0 -3px 0 -1px currentColor,0 3px 0 -1px currentColor,0 0 8px #fff;
+}
+.cine-trail-shard{
+  left:var(--p);
+  top:50%;
+  width:var(--s);
+  height:2px;
+  border-radius:99px;
+  background:#fff;
+  box-shadow:0 0 5px #fff,0 0 9px currentColor;
+  transform:translate(-50%,-50%) rotate(-18deg);
+  animation:cineTrailShard .52s var(--d) ease-out forwards;
+}
+
+/* Multi-layer slash impact: five unequal blade streaks + central flare. */
+#fx .cinematic-slash{
+  width:148px!important;
+  height:148px!important;
+  filter:drop-shadow(0 0 5px #fff7) drop-shadow(0 0 13px currentColor) drop-shadow(0 0 28px currentColor)!important;
+}
+#fx .cinematic-slash:before{
+  content:"";
+  position:absolute;
+  inset:14%;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff9 0 3%,currentColor 4% 7%,transparent 22%);
+  mix-blend-mode:screen;
+  opacity:.9;
+}
+#fx .cinematic-slash:after{
+  content:"";
+  position:absolute;
+  left:8%;right:8%;top:49%;
+  height:14px;
+  transform:rotate(15deg) translateY(-50%);
+  background:linear-gradient(90deg,transparent,currentColor 25%,#fff 53%,currentColor 78%,transparent);
+  clip-path:polygon(0 46%,100% 0,100% 100%,0 56%);
+  opacity:.18;
+  filter:blur(4px);
+}
+#fx .cinematic-slash>i{
+  left:6%!important;
+  right:6%!important;
+  top:50%!important;
+  height:3px!important;
+  border-radius:0!important;
+  transform-origin:center;
+  background:linear-gradient(90deg,transparent 0%,currentColor 13%,#fff 48%,#fff 58%,currentColor 84%,transparent 100%)!important;
+  box-shadow:0 0 4px #fff,0 0 10px currentColor,0 0 20px currentColor;
+}
+#fx .cinematic-slash>i:nth-of-type(1){transform:rotate(-42deg) translateY(-27px) scaleX(.84);opacity:.62}
+#fx .cinematic-slash>i:nth-of-type(2){transform:rotate(-22deg) translateY(-11px) scaleX(1.03);height:5px!important;opacity:1}
+#fx .cinematic-slash>i:nth-of-type(3){transform:rotate(5deg) scaleX(1.08);height:6px!important;opacity:1}
+#fx .cinematic-slash>i:nth-of-type(4){transform:rotate(31deg) translateY(12px) scaleX(.98);height:4px!important;opacity:.85}
+#fx .cinematic-slash>i:nth-of-type(5){transform:rotate(51deg) translateY(28px) scaleX(.72);opacity:.55}
+.cine-impact-flare{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:24px;
+  height:24px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  background:#fff;
+  clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);
+  box-shadow:0 0 8px #fff,0 0 18px currentColor,0 0 36px currentColor;
+  animation:cineImpactFlare .42s ease-out forwards;
+}
+#fx .cinematic-ring:before,
+#fx .cinematic-ring:after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border:1px solid currentColor;
+  border-radius:50%;
+  opacity:.55;
+}
+#fx .cinematic-ring:after{
+  inset:-22px;
+  border-width:2px;
+  opacity:.22;
+}
+
+@keyframes cineTrailShard{
+  0%{opacity:0;transform:translate(-70%,-50%) rotate(-18deg) scaleX(.3)}
+  22%{opacity:1}
+  100%{opacity:0;transform:translate(160%,-120%) rotate(-18deg) scaleX(1.25)}
+}
+@keyframes cineImpactFlare{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(45deg) scale(.2)}
+  24%{opacity:1;transform:translate(-50%,-50%) rotate(45deg) scale(1.35)}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(45deg) scale(.65)}
+}
+
+@media(max-aspect-ratio:1/1){
+  .effect-traits{left:2px;right:2px;bottom:3px;gap:2px}
+  .effect-trait{padding:2px 3px;font-size:6px;letter-spacing:0}
+  .duel-board .forecast-card.has-effect-traits,
+  .duel-board .plan-slot.has-effect-traits{padding-bottom:18px!important}
+  #fx .cinematic-slash{width:118px!important;height:118px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .cine-trail-shard,.cine-impact-flare{animation:none!important}
+  .cine-trail-shard{display:none!important}
+  .cine-impact-flare{opacity:.8!important}
+}
