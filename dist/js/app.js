@@ -96,12 +96,22 @@ function scheduleTurn(delay=1050/speed){
   clearTimeout(timer);if(!game||game.mode!=='battle'||modal||document.hidden)return;
   const b=game.battle;
   if(b.outcome){timer=setTimeout(()=>{if(game?.battle===b){finishBattle(game);save();render();audio.play(b.outcome==='victory'?'victory':'defeat');}},700/speed);return;}
+  if(b.pendingWindowAdvance){
+    timer=setTimeout(()=>{
+      if(modal||document.hidden||game?.battle!==b)return;
+      b.pendingWindowAdvance=false;b.phase='plan';b.plan=[null,null,null,null,null];slot=0;delete b.windowStart;
+      save();renderBattle();toast('次の5手が見えた。残ったカードで組み立てよう。');
+    },delay);return;
+  }
   if(b.phase!=='resolve')return;
   timer=setTimeout(()=>{
     if(modal||document.hidden||game?.battle!==b)return;
+    const closesWindow=b.turn%5===4,planSnapshot=closesWindow?[...b.plan]:null,windowStart=b.windowStart;
     const r=executePlannedTurn(b);game.hp=b.player.hp;
     if(b.outcome)b.phase='ended';
-    if(b.phase==='plan'){slot=0;delete b.windowStart;toast('次の5手が見えた。残ったカードで組み立てよう。');}
+    if(!b.outcome&&b.phase==='plan'&&planSnapshot){
+      b.phase='resolve';b.plan=planSnapshot;b.windowStart=windowStart;b.pendingWindowAdvance=true;
+    }
     audio.play(r.damageToPlayer||r.damageToEnemy?'attack':r.healPlayer?'heal':'guard');world?.impact('enemy',r.damageToEnemy);world?.impact('player',r.damageToPlayer);
     $('#fx').className=r.damageToPlayer?'hurt':r.healPlayer?'healed':'blocked';setTimeout(()=>$('#fx').className='',280);
     save();renderBattle();scheduleTurn();

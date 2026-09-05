@@ -35,3 +35,23 @@
 @keyframes actorPlayerHit{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}22%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}}
 @media(max-aspect-ratio:1/1){.actor-player-presence{width:122px}.actor-impact{width:116px;height:116px}.actor-shield{width:98px;height:98px}.actor-poison{width:106px;height:88px}.actor-aura{width:94px;height:94px}.actor-player-hit{width:136px;height:80px}}
 @media(prefers-reduced-motion:reduce){.actor-beam,.actor-impact,.actor-shield,.actor-poison,.actor-aura,.actor-drain,.actor-player-hit{animation:none!important;opacity:.92!important}.actor-beam>span,.actor-poison i{display:none!important}}
+
+
+/* Battle FX v2 clarity + impact pass */
+.actor-beam{height:18px!important;margin-top:-9px!important;filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 11px currentColor)!important}
+.actor-beam.pierce{filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 14px currentColor) drop-shadow(0 0 24px currentColor)!important}
+.actor-beam-glow{height:10px!important;opacity:.22!important;filter:blur(3px)!important}
+.actor-beam-core{height:2px!important;box-shadow:0 0 4px #fff,0 0 9px currentColor!important}
+.actor-beam-edge{opacity:.38!important}
+.actor-beam>span{width:12px!important;height:1px!important;box-shadow:0 0 4px #fff,0 0 7px currentColor!important}
+.actor-beam.counter{height:15px!important;margin-top:-7px!important;animation-duration:.42s!important;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 0 16px currentColor)!important}
+.actor-impact.counter{width:132px!important;height:132px!important;animation-duration:.72s!important;filter:drop-shadow(0 0 15px currentColor) drop-shadow(0 0 26px currentColor)!important}
+.actor-impact.counter>span{bottom:-2px!important;padding:5px 10px!important;font-size:10px!important;letter-spacing:2px!important;background:#071018f2!important}
+.actor-poison.applied{width:150px!important;height:120px!important;color:#a5f27b!important;background:radial-gradient(ellipse,#6bbb4f66 0,#744aa63f 45%,transparent 72%)!important;animation:actorPoisonApply 1.34s ease-out forwards!important;filter:drop-shadow(0 0 14px #79df68aa)}
+.actor-poison.applied b{bottom:-1px!important;padding:4px 8px;border-radius:99px;background:#102013e8;border:1px solid #9bea7b77;font-size:9px!important;letter-spacing:1.8px!important;color:#caffad;text-shadow:0 2px 7px #000,0 0 8px #7fdf61}
+.actor-poison.applied i{background:linear-gradient(135deg,#b5ff83,#8f5cc8)!important;box-shadow:0 0 11px #79df68,0 0 16px #8e5cca66!important}
+#app.actor-counter-hitstop{animation:actorCounterPunch .15s steps(2,end)}
+@keyframes actorCounterPunch{0%{filter:brightness(1);transform:translateX(0)}35%{filter:brightness(1.22);transform:translateX(-1px)}68%{filter:brightness(.95);transform:translateX(1px)}100%{filter:brightness(1);transform:translateX(0)}}
+@keyframes actorPoisonApply{0%{opacity:0;transform:translate(-50%,-40%) scale(.42)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}72%{opacity:1}100%{opacity:0;transform:translate(-50%,-72%) scale(1.2)}}
+@media(max-aspect-ratio:1/1){.actor-impact.counter{width:116px!important;height:116px!important}.actor-poison.applied{width:122px!important;height:102px!important}.actor-beam{height:16px!important;margin-top:-8px!important}}
+@media(prefers-reduced-motion:reduce){#app.actor-counter-hitstop{animation:none!important}.actor-poison.applied{animation:none!important;opacity:.94!important}}
