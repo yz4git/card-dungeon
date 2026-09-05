@@ -1,0 +1,24 @@
+/* Clarity pass: improve dungeon visibility without changing layout or gameplay. */
+body[data-mode="explore"] #world canvas{filter:brightness(1.18) contrast(1.035) saturate(.96)}
+body[data-mode="explore"] .vignette{background:linear-gradient(180deg,#030a1070 0%,transparent 18%,transparent 60%,#030a1075 88%,#030a10a8 100%),radial-gradient(ellipse at 50% 42%,transparent 42%,#02060d4d 100%)}
+body[data-mode="explore"] #world{background:radial-gradient(ellipse at 48% 28%,#36535b,#10202b 57%,#071018)}
+
+/* Battle readability: explicit actor -> target -> result flow. */
+.battle-feedback.enhanced-feedback>h3,.battle-feedback.enhanced-feedback>p,.battle-feedback.enhanced-feedback>small{display:none}
+.combat-flow{display:flex;flex-direction:column;gap:6px;margin-top:7px;text-shadow:0 2px 10px #000}
+.combat-flow-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 9px;border:1px solid #ffffff18;border-radius:4px;background:#09141dd6;font-size:12px;line-height:1.25}
+.combat-action{display:flex;align-items:center;gap:6px;min-width:0;color:#b9c8cc;white-space:nowrap}.combat-action b{font-family:ui-sans-serif,-apple-system,sans-serif;font-size:12px;color:#f1e7cf}.combat-action i{font-style:normal;color:#718992}.combat-flow-row.attack .combat-action>span:nth-of-type(1){color:var(--attack)}.combat-flow-row.guard .combat-action>span:nth-of-type(1){color:var(--guard)}.combat-flow-row.heal .combat-action>span:nth-of-type(1){color:var(--heal)}.combat-flow-row.focus .combat-action>span:nth-of-type(1){color:var(--focus)}
+.combat-outcome{font-family:ui-sans-serif,-apple-system,sans-serif;font-size:12px;font-weight:700;color:#f3d8ad;text-align:right;white-space:nowrap}.enemy-flow .combat-outcome{color:#e7a58e}.combat-note{font-size:11px;color:#839aa4;line-height:1.35;text-align:center;padding-top:1px}
+
+/* Directional battle effects are anchored to the real enemy/player UI positions. */
+#fx .combat-beam{position:absolute;height:3px;transform-origin:0 50%;border-radius:99px;opacity:0;animation:combatBeam .58s ease-out forwards;filter:drop-shadow(0 0 6px currentColor)}
+#fx .combat-beam:after{content:"";position:absolute;right:-2px;top:50%;width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:translateY(-50%) rotate(45deg)}
+#fx .player-to-enemy{color:#f0c991;background:linear-gradient(90deg,#74c9c5aa,#f0c991)}#fx .enemy-to-player{color:#e48f78;background:linear-gradient(90deg,#e48f78,#c66055)}#fx .combat-beam.blocked{height:2px;opacity:.7;filter:none}
+#fx .combat-burst{position:absolute;transform:translate(-50%,-50%) scale(.7);padding:4px 7px;border-radius:4px;font-family:Georgia,serif;font-weight:700;font-size:24px;letter-spacing:.5px;text-shadow:0 2px 5px #000;white-space:nowrap;opacity:0;animation:combatBurst .82s cubic-bezier(.18,.84,.2,1) forwards}
+#fx .damage-enemy{color:#ffd0a9;background:#713b2ba6;border:1px solid #f0ae7c88}#fx .damage-player{color:#ffc0ad;background:#742e2da6;border:1px solid #ee746688}#fx .heal-player{color:#b8f0c6;background:#22543aa6;border:1px solid #7ad69b88;font-size:20px}#fx .block-player,#fx .block-enemy{color:#bfe5f3;background:#1d455aa6;border:1px solid #78bad588;font-size:17px;letter-spacing:1px}
+@keyframes combatBeam{0%{opacity:0;clip-path:inset(0 100% 0 0)}20%{opacity:1}70%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+@keyframes combatBurst{0%{opacity:0;transform:translate(-50%,-35%) scale(.55)}18%{opacity:1;transform:translate(-50%,-55%) scale(1.12)}55%{opacity:1;transform:translate(-50%,-70%) scale(1)}100%{opacity:0;transform:translate(-50%,-115%) scale(.92)}}
+
+@media(max-aspect-ratio:1/1){.combat-flow{gap:3px;margin-top:3px}.combat-flow-row{padding:3px 5px;font-size:10px}.combat-action{gap:3px}.combat-action b,.combat-outcome{font-size:10px}.combat-note{display:none}#fx .combat-burst{font-size:18px;padding:3px 5px}}
+@media(max-height:540px) and (min-aspect-ratio:1/1){.combat-flow{gap:3px;margin-top:3px}.combat-flow-row{padding:3px 5px}.combat-note{display:none}}
+@media(prefers-reduced-motion:reduce){#fx .combat-beam,#fx .combat-burst{animation:none!important;display:none}}
