@@ -36,11 +36,19 @@ export function generateFloor(floor, seed) {
   const sorted=[...cells].sort((a,b)=>distances.get(posKey(b.x,b.z))-distances.get(posKey(a.x,a.z)));
   const exit=sorted[0]; exit.event=floor%5===0?'boss':'stairs';
   const candidates=shuffle(cells.filter(c=>c!==exit&&distances.get(posKey(c.x,c.z))>1),random);
-  const enemyCount=Math.min(candidates.length-2,2+Math.floor(floor/2));
-  candidates.slice(0,enemyCount).forEach((c,i)=>{c.event='enemy';c.enemyIndex=(floor===1?0:Math.floor(random()*Math.min(3,1+floor)) );c.enemySeed=seed+floor*7919+i*371;});
+  const reserved=2;
+  const enemyCount=Math.max(0,Math.min(candidates.length-reserved,2+Math.floor(floor/2)));
+  const latePool=[4,5,6,0,1,2];
+  candidates.slice(0,enemyCount).forEach((c,i)=>{
+    c.event='enemy';
+    if(floor===1)c.enemyIndex=0;
+    else if(floor>=6)c.enemyIndex=i===0?4+((floor-6)%3):latePool[Math.floor(random()*latePool.length)];
+    else c.enemyIndex=Math.floor(random()*Math.min(3,1+floor));
+    c.enemySeed=seed+floor*7919+i*371;
+  });
   if(candidates[enemyCount]) candidates[enemyCount].event='chest';
   if(candidates[enemyCount+1]) candidates[enemyCount+1].event='spring';
-  exit.enemyIndex=3;exit.enemySeed=seed+floor*7103;
+  exit.enemyIndex=floor%10===0?7:3;exit.enemySeed=seed+floor*7103;
   // Guarantee a first encounter in the first corridor, while keeping the starting tile safe.
   if(floor===1){const first=queue[1]; if(first && first!==exit){const existing=cells.find(c=>c.event==='enemy'); if(existing)existing.event='empty';first.event='enemy';first.enemyIndex=0;first.enemySeed=seed+7919;}}
   const firstDir = DIRS.findIndex(([dx,dz])=>occupied.has(posKey(dx,dz)));
@@ -54,8 +62,14 @@ export function findCell(game,x=game.dungeon.position.x,z=game.dungeon.position.
 export function reveal(game){const p=game.dungeon.position;for(const c of game.dungeon.cells)if(Math.abs(c.x-p.x)+Math.abs(c.z-p.z)<=1)c.seen=true;}
 export function createEnemy(floor, index, seed) {
   const def=ENEMIES[index], random=rng(seed), rank=Math.min(30,1+Math.floor((floor-1)/3));
-  const cards=shuffle(def.deck,random).map((key,i)=>({uid:`e${seed}-${i}`,key,rank:Math.min(30,rank+(floor>2&&random()<.25?1:0))}));
-  const hp=def.hp+(floor-1)*5+Math.floor((floor-1)/3)*5;
+  if(!def)throw new Error('Unknown enemy: '+index);
+  const source=def.scripted?[...def.deck]:shuffle(def.deck,random);
+  const cards=source.map((key,i)=>({
+    uid:`e${seed}-${i}`,
+    key,
+    rank:Math.min(30,rank+(def.scripted?Math.floor(i/5):(floor>2&&random()<.25?1:0)))
+  }));
+  const hp=def.hp+(def.hpBonus||0)+(floor-1)*5+Math.floor((floor-1)/3)*5;
   return {...def, floor, hp, maxHp:hp, cards, seed};
 }
 export function fighter(hp, maxHp) {return {hp,maxHp,focus:0,poison:0,poisonTurns:0,regen:0,regenTurns:0};}
@@ -174,7 +188,7 @@ export function validSave(raw){
   if(!d||!Array.isArray(d.cells)||d.cells.length<2||d.cells.length>40006||!d.position||!Number.isInteger(d.facing)||d.facing<0||d.facing>3)return false;
   if(d.cells.some(c=>!Number.isInteger(c.x)||Math.abs(c.x)>10000||!Number.isInteger(c.z)||Math.abs(c.z)>10000||!['start','empty','enemy','boss','chest','spring','stairs'].includes(c.event))||!d.cells.some(c=>c.x===d.position.x&&c.z===d.position.z))return false;
   if(d.floor!==raw.floor||!integer(d.steps)||new Set(d.cells.map(c=>posKey(c.x,c.z))).size!==d.cells.length)return false;
-  if(d.cells.some(c=>['enemy','boss'].includes(c.event)&&(!integer(c.enemyIndex,0,3)||!integer(c.enemySeed,0,1e12))))return false;
+  if(d.cells.some(c=>['enemy','boss'].includes(c.event)&&(!integer(c.enemyIndex,0,ENEMIES.length-1)||!integer(c.enemySeed,0,1e12))))return false;
   if(!['explore','encounter','battle','reward'].includes(raw.mode))return false;
   if((raw.mode==='encounter'||raw.mode==='battle')&&!enemy(raw.encounter))return false;
   if(raw.mode==='battle'){
