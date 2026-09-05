@@ -1,0 +1,37 @@
+/* B6–B10 visual identity, final-boss presentation, reward comparison and deck advisor. */
+body.late-depth .vignette{background:radial-gradient(circle at 50% 48%,transparent 24%,rgba(3,8,14,.18) 58%,rgba(0,0,0,.72) 100%),linear-gradient(180deg,rgba(44,94,116,.06),rgba(0,0,0,.12))}
+body.late-depth-6 #world canvas{filter:brightness(1.05) saturate(1.12) hue-rotate(4deg)}
+body.late-depth-7 #world canvas{filter:brightness(1.02) saturate(1.16) hue-rotate(322deg)}
+body.late-depth-8 #world canvas{filter:brightness(1.08) saturate(.9) hue-rotate(18deg)}
+body.late-depth-9 #world canvas{filter:brightness(.98) saturate(1.18) hue-rotate(292deg)}
+body.late-depth-10 #world canvas{filter:brightness(.96) contrast(1.08) saturate(1.22) hue-rotate(275deg)}
+body.late-depth .location h2{letter-spacing:.04em;text-shadow:0 2px 18px rgba(109,211,222,.15)}
+body.late-depth-10 .location h2{letter-spacing:.1em;text-shadow:0 2px 24px rgba(218,154,255,.28)}
+body.final-boss-active .vignette{background:radial-gradient(circle at 50% 42%,rgba(142,79,184,.09),transparent 37%),radial-gradient(circle at 50% 50%,transparent 23%,rgba(1,4,10,.42) 65%,rgba(0,0,0,.82) 100%)}
+body.final-boss-active #world canvas{filter:brightness(.9) contrast(1.12) saturate(1.28) hue-rotate(282deg)}
+body.final-boss-active .battle-stage,body.final-boss-active .encounter-stage{box-shadow:inset 0 0 64px rgba(126,58,165,.18)}
+.final-phase-badge{display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;margin:0 0 5px;padding:3px 7px;border:1px solid rgba(226,185,255,.28);border-radius:999px;background:rgba(38,12,52,.72);box-shadow:0 0 18px rgba(161,80,210,.14);font-size:8px;line-height:1;color:#e8d1f8;letter-spacing:.06em}
+.final-phase-badge b{font-size:8px;color:#fff2bf;letter-spacing:.12em}
+.final-phase-badge span{font-weight:800;color:#f1dcff}.final-phase-badge small{opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.advisor-badges{position:absolute;left:4px;right:4px;top:25px;z-index:6;display:flex;flex-wrap:wrap;justify-content:center;gap:3px;pointer-events:none}
+.advisor-badge{display:inline-flex;align-items:center;min-height:16px;padding:2px 5px;border-radius:999px;background:#101820e8;border:1px solid #ffffff1f;color:#d9e2e5;font-style:normal;font-size:7px;font-weight:800;line-height:1;letter-spacing:.02em;box-shadow:0 2px 8px #0007}
+.advisor-badge.new{background:#3c2c10e8;border-color:#f2c96c66;color:#ffe8a3}
+.advisor-badge.upgrade{background:#12372fe8;border-color:#75d8b45c;color:#aaf1d7}
+.advisor-badge.compare{background:#123042e8;border-color:#6cc7e65c;color:#b8ebff}
+.advisor-badge.recommended{background:#382950e8;border-color:#c99bf36b;color:#ead0ff}
+.game-card.advisor-recommended{box-shadow:inset 0 0 0 1px rgba(202,156,244,.28),0 8px 18px #0007}
+.game-card.is-new-card:after{content:'NEW';position:absolute;right:5px;bottom:5px;z-index:6;padding:2px 4px;border-radius:4px;background:#f0c765;color:#20180a;font-size:7px;font-weight:900;letter-spacing:.08em}
+.reward-footer{gap:7px}.reward-deck-button{min-height:44px}
+.deck-advisor{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 12px;padding:10px 11px;border:1px solid #b889e13b;border-radius:10px;background:linear-gradient(135deg,rgba(48,27,66,.78),rgba(13,29,38,.82));box-shadow:inset 0 1px #ffffff0b,0 8px 22px #0005}
+.deck-advisor>div{min-width:0;display:grid;gap:2px}.advisor-kicker{font-size:7px;color:#c8a8df;letter-spacing:.12em}.deck-advisor strong{font-size:13px;color:#f1e8f6}.deck-advisor small{font-size:8px;color:#a9b7bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.advisor-apply{flex:0 0 auto;min-height:38px;padding-inline:12px}
+.advisor-sort-label{display:block;margin:-2px 0 5px;text-align:right;font-size:8px;color:#81939b;letter-spacing:.04em}
+.reserve-grid .game-card{transition:transform .13s ease,box-shadow .13s ease}.reserve-grid .game-card.advisor-recommended{transform:translateY(-1px)}
+@media(max-aspect-ratio:1/1){
+  body.late-depth #world canvas,body.final-boss-active #world canvas{will-change:filter}
+  .deck-advisor{position:sticky;top:-1px;z-index:12;margin:5px 0 9px;padding:8px 9px;background:linear-gradient(135deg,rgba(43,24,59,.97),rgba(9,24,32,.98))}
+  .deck-advisor strong{font-size:12px}.deck-advisor small{font-size:7px}.advisor-apply{min-height:36px;padding:7px 9px;font-size:9px}
+  .advisor-badges{top:22px;gap:2px}.advisor-badge{min-height:14px;padding:2px 4px;font-size:6.5px}
+  .reward-footer{display:grid!important;grid-template-columns:1fr 1fr!important}.reward-footer p{grid-column:1/-1}.reward-footer .primary{grid-column:1/-1}
+  .final-phase-badge{max-width:92vw}.final-phase-badge small{max-width:35vw}
+}
+@media(prefers-reduced-motion:reduce){.reserve-grid .game-card{transition:none!important}}
