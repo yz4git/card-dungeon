@@ -93,8 +93,9 @@ function enhanceBattle(){
   const enemyDamage=numberFrom(summary,/敵に\s*(\d+)/);
   const playerDamage=numberFrom(summary,/被ダメージ\s*(\d+)/);
   const healPlayer=numberFrom(summary,/回復\s*(\d+)/);
-  const playerBlocked=playerDamage===0&&detail.includes('攻撃を防いだ');
-  const enemyBlocked=enemyDamage===0&&detail.includes('敵が攻撃を防いだ');
+  const details=detail.split(' · ').map(item=>item.trim()).filter(Boolean);
+  const playerBlocked=playerDamage===0&&details.includes('攻撃を防いだ');
+  const enemyBlocked=enemyDamage===0&&details.includes('敵が攻撃を防いだ');
   const playerType=cardType(document.querySelector('.plan-slot.active'));
   const enemyType=cardType(document.querySelector('.forecast-card.active'));
   if(!feedback.querySelector('.combat-flow')){
