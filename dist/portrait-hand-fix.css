@@ -1,41 +1,78 @@
-/* Portrait battle layout fix: reserve a real scrollable hand area instead of letting it fall below the viewport. */
+/* Portrait battle selection: cards take priority and the hand never gets covered. */
 @media (max-aspect-ratio:1/1){
-  .battle-layout.planning-enhanced .battle-panel{
+  /* During planning, shrink the 3D stage and give the card UI most of the screen. */
+  .battle-layout.planning-enhanced{
+    grid-template-columns:1fr!important;
+    grid-template-rows:clamp(86px,15vh,122px) minmax(0,1fr)!important;
     min-height:0!important;
     height:100%!important;
+  }
+  .battle-layout.planning-enhanced .battle-stage{
+    min-height:0!important;
+    height:auto!important;
+    overflow:hidden!important;
+    padding:7px 12px!important;
+  }
+  .battle-layout.planning-enhanced .battle-panel{
+    min-height:0!important;
+    height:auto!important;
     overflow:hidden!important;
     display:flex!important;
     flex-direction:column!important;
+    padding-top:6px!important;
     padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;
   }
   .battle-layout.planning-enhanced .battle-heading{
     flex:0 0 auto!important;
-  }
-  .battle-layout.planning-enhanced .duel-board{
-    flex:0 0 auto!important;
-    padding-top:6px!important;
-    padding-bottom:7px!important;
     margin-bottom:4px!important;
   }
+  .battle-layout.planning-enhanced .battle-heading h3{
+    margin-top:1px!important;
+  }
+
+  /* Enemy and player cards are large enough to read as actual cards, not tiny status boxes. */
+  .battle-layout.planning-enhanced .duel-board{
+    flex:0 0 auto!important;
+    padding:7px 6px 9px!important;
+    margin-bottom:5px!important;
+  }
   .battle-layout.planning-enhanced .duel-board .forecast-card{
-    min-height:62px!important;
+    min-height:68px!important;
   }
   .battle-layout.planning-enhanced .duel-board .plan-slot{
-    min-height:50px!important;
+    min-height:70px!important;
+    padding-top:7px!important;
+    padding-bottom:7px!important;
   }
-  .battle-layout.planning-enhanced .pick-guide{
-    flex:0 0 auto!important;
-    margin:2px 0 4px!important;
-    min-height:26px!important;
+  .battle-layout.planning-enhanced .duel-board .plan-slot strong{
+    font-size:10px!important;
   }
+  .battle-layout.planning-enhanced .duel-board .plan-slot>span:not(.slot-number):not(.empty-slot){
+    font-size:13px!important;
+  }
+  .battle-layout.planning-enhanced .duel-board .plan-slot.target:after{
+    bottom:-12px!important;
+  }
+
+  /* Recommendation/advice is intentionally off. */
+  .battle-layout.planning-enhanced .pick-guide,
+  .battle-layout.planning-enhanced .planning-badge,
+  .battle-layout.planning-enhanced .game-card.planning-recommended:after{
+    display:none!important;
+  }
+  .battle-layout.planning-enhanced .game-card.planning-recommended{
+    transform:none!important;
+    filter:none!important;
+  }
+
   .battle-layout.planning-enhanced .hand-label{
     flex:0 0 auto!important;
-    margin:0 0 3px!important;
+    margin:1px 0 4px!important;
     min-height:24px!important;
   }
   .battle-layout.planning-enhanced .hand-scroll{
     flex:1 1 auto!important;
-    min-height:132px!important;
+    min-height:156px!important;
     max-height:none!important;
     overflow-y:auto!important;
     overflow-x:hidden!important;
@@ -47,11 +84,18 @@
   }
   .battle-layout.planning-enhanced .hand-grid{
     align-content:start!important;
-    padding-bottom:8px!important;
+    padding-bottom:10px!important;
   }
   .battle-layout.planning-enhanced .hand-scroll .game-card{
-    min-height:112px!important;
+    min-height:116px!important;
   }
+
+  /* No instructional overlay on top of card contents. Scrolling remains enabled. */
+  .battle-layout.planning-enhanced .hand-scroll-cue,
+  .hand-scroll>.hand-scroll-cue{
+    display:none!important;
+  }
+
   .battle-layout.planning-enhanced .battle-bottom{
     flex:0 0 auto!important;
     position:relative!important;
@@ -62,12 +106,15 @@
   }
 }
 
-/* Short portrait phones need a little more vertical economy, but the hand remains usable. */
+/* Short portrait phones keep the same hierarchy without clipping the hand. */
 @media (max-aspect-ratio:1/1) and (max-height:760px){
-  .battle-layout.planning-enhanced .battle-heading h3{font-size:17px!important}
-  .battle-layout.planning-enhanced .duel-board .forecast-card{min-height:56px!important}
-  .battle-layout.planning-enhanced .duel-board .plan-slot{min-height:46px!important}
-  .battle-layout.planning-enhanced .pick-guide{min-height:23px!important;padding-block:3px!important}
-  .battle-layout.planning-enhanced .hand-scroll{min-height:120px!important}
-  .battle-layout.planning-enhanced .hand-scroll .game-card{min-height:104px!important}
+  .battle-layout.planning-enhanced{
+    grid-template-rows:82px minmax(0,1fr)!important;
+  }
+  .battle-layout.planning-enhanced .battle-stage{padding-block:5px!important}
+  .battle-layout.planning-enhanced .battle-heading h3{font-size:16px!important}
+  .battle-layout.planning-enhanced .duel-board .forecast-card{min-height:60px!important}
+  .battle-layout.planning-enhanced .duel-board .plan-slot{min-height:62px!important}
+  .battle-layout.planning-enhanced .hand-scroll{min-height:138px!important}
+  .battle-layout.planning-enhanced .hand-scroll .game-card{min-height:108px!important}
 }
