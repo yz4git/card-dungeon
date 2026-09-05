@@ -8,7 +8,7 @@ test('1F has ten connected irregular tiles, a reachable exit, and a safe entranc
   for(let seed=0;seed<100;seed++)for(const floor of [1,2,5,10,25]){
     const d=generateFloor(floor,seed),set=new Set(d.cells.map(c=>posKey(c.x,c.z))),visited=new Set(['0,0']),queue=[[0,0]];
     for(let i=0;i<queue.length;i++)for(const [dx,dz]of DIRS){const x=queue[i][0]+dx,z=queue[i][1]+dz,k=posKey(x,z);if(set.has(k)&&!visited.has(k)){visited.add(k);queue.push([x,z]);}}
-    assert.equal(d.cells.length,Math.min(90,10+(floor-1)*4));assert.equal(visited.size,d.cells.length);assert.equal(set.size,d.cells.length);
+    assert.equal(d.cells.length,10+(floor-1)*4);assert.equal(visited.size,d.cells.length);assert.equal(set.size,d.cells.length);
     assert.equal(d.cells.filter(c=>c.event===(floor%5===0?'boss':'stairs')).length,1);assert.equal(d.cells[0].event,'start');
     if(floor===1){const [dx,dz]=DIRS[d.facing];assert.equal(d.cells.find(c=>c.x===dx&&c.z===dz).event,'enemy');}
   }

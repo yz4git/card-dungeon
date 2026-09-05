@@ -13,7 +13,7 @@ export const DIRS = [[0,-1],[1,0],[0,1],[-1,0]];
 export const posKey = (x,z) => `${x},${z}`;
 export function generateFloor(floor, seed) {
   const random = rng(seed + floor * 196613);
-  const count = Math.min(90, 10 + (floor - 1) * 4);
+  const count = 10 + (floor - 1) * 4;
   const cells = [{x:0,z:0,event:'start',cleared:true,seen:true}];
   const occupied = new Set(['0,0']);
   while (cells.length < count) {
@@ -171,8 +171,8 @@ export function validSave(raw){
   if(!integer(raw.floor,1,10000)||!integer(raw.bestFloor,raw.floor,10000)||!integer(raw.wins)||!integer(raw.deaths)||!integer(raw.seed,0,4294967295)||!integer(raw.nextUid,16)||!integer(raw.hp,0,raw.maxHp)||!integer(raw.maxHp,1,1000))return false;
   if(raw.collection.some(c=>!/^c\d+$/.test(c.uid)||Number(c.uid.slice(1))>=raw.nextUid))return false;
   const d=raw.dungeon;
-  if(!d||!Array.isArray(d.cells)||d.cells.length<2||d.cells.length>90||!d.position||!Number.isInteger(d.facing)||d.facing<0||d.facing>3)return false;
-  if(d.cells.some(c=>!Number.isInteger(c.x)||Math.abs(c.x)>100||!Number.isInteger(c.z)||Math.abs(c.z)>100||!['start','empty','enemy','boss','chest','spring','stairs'].includes(c.event))||!d.cells.some(c=>c.x===d.position.x&&c.z===d.position.z))return false;
+  if(!d||!Array.isArray(d.cells)||d.cells.length<2||d.cells.length>40006||!d.position||!Number.isInteger(d.facing)||d.facing<0||d.facing>3)return false;
+  if(d.cells.some(c=>!Number.isInteger(c.x)||Math.abs(c.x)>10000||!Number.isInteger(c.z)||Math.abs(c.z)>10000||!['start','empty','enemy','boss','chest','spring','stairs'].includes(c.event))||!d.cells.some(c=>c.x===d.position.x&&c.z===d.position.z))return false;
   if(d.floor!==raw.floor||!integer(d.steps)||new Set(d.cells.map(c=>posKey(c.x,c.z))).size!==d.cells.length)return false;
   if(d.cells.some(c=>['enemy','boss'].includes(c.event)&&(!integer(c.enemyIndex,0,3)||!integer(c.enemySeed,0,1e12))))return false;
   if(!['explore','encounter','battle','reward'].includes(raw.mode))return false;
@@ -184,7 +184,7 @@ export function validSave(raw){
     if(b.used.some(id=>!b.cards.some(c=>c.uid===id))||b.plan.some(id=>id!==null&&!b.cards.some(c=>c.uid===id))||new Set(b.plan.filter(Boolean)).size!==b.plan.filter(Boolean).length)return false;
     if(b.phase==='resolve'&&(b.plan.some(id=>!id)||!integer(b.windowStart,0,10)||b.windowStart%5!==0||b.turn<b.windowStart||b.turn>=b.windowStart+5))return false;
     if(b.phase==='plan'&&(b.turn%5!==0||b.turn>=15||b.plan.some(id=>b.used.includes(id))))return false;
-    if(b.log.some(l=>!card(l.playerCard)||!card(l.enemyCard)||!Array.isArray(l.detail)||l.detail.some(t=>typeof t!=='string')))return false;
+    if(b.log.some(l=>!card(l.playerCard)||!card(l.enemyCard)||!Array.isArray(l.detail)||l.detail.some(t=>typeof t!=='string')||['damageToEnemy','damageToPlayer','healPlayer','healEnemy'].some(k=>!integer(l[k],0,1e6))))return false;
   }
   if(raw.mode==='reward'){
     const r=raw.reward;if(!r||!['victory','defeat'].includes(r.kind)||!Array.isArray(r.cards)||r.cards.length!==15||!r.cards.every(card)||!Array.isArray(r.selected)||r.max!==(r.kind==='victory'?3:1)||r.selected.length>r.max||new Set(r.selected).size!==r.selected.length||r.selected.some(id=>!r.cards.some(c=>c.uid===id)))return false;

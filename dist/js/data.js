@@ -1,4 +1,4 @@
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.1';
 export const SAVE_KEY = 'card-dungeon-v1';
 export const MAX_TURNS = 15;
 export const WINDOW_SIZE = 5;

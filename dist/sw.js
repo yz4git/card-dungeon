@@ -1,4 +1,4 @@
-const CACHE = 'card-dungeon-v1.0.0';
+const CACHE = 'card-dungeon-v1.0.1';
 const CORE = ['./','./index.html','./style.css','./js/app.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js','./lib/three.module.min.js','./assets/enemies.webp','./assets/icon.svg','./manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)));
