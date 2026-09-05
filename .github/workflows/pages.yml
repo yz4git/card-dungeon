@@ -90,6 +90,7 @@ jobs:
               './card-focus.css',
               './battle-actor-fx.css',
               './encounter-transition.css',
+              './victory-transition.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
@@ -97,6 +98,7 @@ jobs:
               './js/battle-polish.js',
               './js/battle-actor-fx.js',
               './js/encounter-transition.js',
+              './js/victory-transition.js',
           ]
           for asset in assets:
               html = html.replace(asset, f'{asset}?v={sha}')
