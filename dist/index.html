@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071018">
+  <meta name="description" content="敵の5手を読み、15枚のデッキで挑む。自動生成される3D迷宮を探索するカードバトル・ローグライク。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CARD DUNGEON — 先見の迷宮</title>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app">
+    <div id="world" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <header id="hud"></header>
+    <main id="screen"><div class="boot"><span class="eyebrow">CARD DUNGEON</span><h1>先見の迷宮</h1><p>迷宮をひらいています…</p></div></main>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div id="fx" aria-hidden="true"></div>
+    <div id="modal-root"></div>
+  </div>
+  <noscript>このゲームを遊ぶにはJavaScriptを有効にしてください。</noscript>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

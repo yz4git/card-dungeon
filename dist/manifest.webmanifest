@@ -1,0 +1,13 @@
+{
+  "id": "./",
+  "name": "CARD DUNGEON — 先見の迷宮",
+  "short_name": "Card Dungeon",
+  "description": "敵の5手を読み、15枚のデッキで挑む3D迷宮。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#071018",
+  "theme_color": "#071018",
+  "icons": [{ "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
