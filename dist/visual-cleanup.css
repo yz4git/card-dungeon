@@ -8,6 +8,7 @@
   background:#3b2854ed;border:1px solid #d6adf477;color:#f1d7ff;font:900 9px/1 ui-sans-serif,-apple-system,sans-serif;
   box-shadow:0 2px 8px #0008,0 0 10px #b475df25;pointer-events:none
 }
+.modal.wide-modal .game-card.advisor-recommended .rank{margin-right:20px}
 .modal.wide-modal .advisor-badges{
   position:static!important;order:20;width:100%;min-height:0;display:flex;justify-content:center;gap:2px;margin:1px 0 0;pointer-events:none
 }
@@ -26,6 +27,7 @@
   filter:brightness(1)!important;border-color:var(--gold-bright)!important;
   box-shadow:0 0 0 1px #e7cd8a66,0 0 18px #d8bb6e24!important
 }
+.reward-cards .game-card.selected .rank{margin-right:26px}
 .reward-cards .game-card .assigned-badge{
   inset:5px 5px auto auto!important;transform:none!important;width:22px;height:22px;padding:0!important;display:grid;place-items:center;
   overflow:hidden;text-indent:-9999px;border-radius:50%;background:#e6cf96f2!important;border:1px solid #fff0c4!important;
@@ -49,6 +51,7 @@
   .modal.wide-modal .editor-deck .game-card,
   .modal.wide-modal .reserve-grid .game-card{min-height:101px!important}
   .modal.wide-modal .game-card.advisor-recommended::before{top:4px;right:4px;width:16px;height:16px;font-size:8px}
+  .modal.wide-modal .game-card.advisor-recommended .rank{margin-right:19px}
   .duel-board .forecast-card{padding-top:12px!important}
   .duel-board .forecast-card strong{
     margin-top:3px!important;font-size:10px!important;line-height:1.12!important;min-height:22px;display:flex;align-items:center;justify-content:center
