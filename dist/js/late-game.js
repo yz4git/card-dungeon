@@ -101,7 +101,8 @@ function decorateDeck(g){
   if(!modal.querySelector('.advisor-sort-label')){const label=document.createElement('span');label.className='advisor-sort-label';label.textContent='おすすめ度の高い順';reserve.before(label);}
 }
 function decorateFinalBoss(g){
-  const isFinal=g?.encounter?.id==='abyss-crown'||g?.battle?.enemy?.id==='abyss-crown';
+  const active=document.body.dataset.mode!=='title';
+  const isFinal=active&&(g?.encounter?.id==='abyss-crown'||g?.battle?.enemy?.id==='abyss-crown');
   document.body.classList.toggle('final-boss-active',!!isFinal);
   if(!isFinal)return;
   const enemy=g.battle?.enemy||g.encounter,turn=g.battle?.turn||0,phase=Math.min(2,Math.floor(turn/5));
@@ -115,13 +116,19 @@ function decorateFinalBoss(g){
 }
 function decorateFloor(g){
   for(let i=6;i<=10;i++)document.body.classList.remove(`late-depth-${i}`);
-  document.body.classList.toggle('late-depth',g?.floor>=6);
-  if(!g||g.floor<6)return;
+  if(document.body.dataset.mode==='title'||!g){document.body.classList.remove('late-depth');return;}
+  document.body.classList.toggle('late-depth',g.floor>=6);
+  if(g.floor<6)return;
   const n=Math.min(10,g.floor);document.body.classList.add(`late-depth-${n}`);
   const info=FLOOR_NAMES[n],location=document.querySelector('.explore-screen .location');
   if(info&&location){const eyebrow=location.querySelector('.eyebrow'),h2=location.querySelector('h2');if(eyebrow&&eyebrow.textContent!==info[0])eyebrow.textContent=info[0];if(h2&&h2.textContent!==info[1])h2.textContent=info[1];}
 }
-function decorate(){const g=readGame();if(!g)return;decorateFloor(g);decorateFinalBoss(g);decorateReward(g);decorateTreasure();decorateDeck(g);}
+function decorate(){
+  const g=readGame();
+  decorateFloor(g);decorateFinalBoss(g);
+  if(!g)return;
+  decorateReward(g);decorateTreasure();decorateDeck(g);
+}
 function queue(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;decorate();});}
 const sleep=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 async function applyRecommended(){
@@ -150,7 +157,7 @@ document.addEventListener('click',event=>{
   if(el.dataset.action==='claim'){rememberClaim();return;}
   if(el.dataset.lateAction==='apply-recommended'){event.preventDefault();applyRecommended();}
   if(el.dataset.lateAction==='claim-deck'){event.preventDefault();claimThenDeck();}
-});
+},true);
 new MutationObserver(queue).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('storage',queue);
 queue();
