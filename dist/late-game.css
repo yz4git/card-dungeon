@@ -23,13 +23,13 @@ body.final-boss-active .battle-stage,body.final-boss-active .encounter-stage{box
 .game-card.is-new-card:after{content:'NEW';position:absolute;right:5px;bottom:5px;z-index:6;padding:2px 4px;border-radius:4px;background:#f0c765;color:#20180a;font-size:7px;font-weight:900;letter-spacing:.08em}
 .reward-footer{gap:7px}.reward-deck-button{min-height:44px}
 .deck-advisor{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 12px;padding:10px 11px;border:1px solid #b889e13b;border-radius:10px;background:linear-gradient(135deg,rgba(48,27,66,.78),rgba(13,29,38,.82));box-shadow:inset 0 1px #ffffff0b,0 8px 22px #0005}
-.deck-advisor>div{min-width:0;display:grid;gap:2px}.advisor-kicker{font-size:7px;color:#c8a8df;letter-spacing:.12em}.deck-advisor strong{font-size:13px;color:#f1e8f6}.deck-advisor small{font-size:8px;color:#a9b7bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.advisor-apply{flex:0 0 auto;min-height:38px;padding-inline:12px}
+.deck-advisor>div{min-width:0;display:grid;gap:2px}.advisor-kicker{font-size:7px;color:#c8a8df;letter-spacing:.12em}.deck-advisor strong{font-size:13px;color:#f1e8f6}.deck-advisor small{font-size:8px;color:#a9b7bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.advisor-auto-note{margin-top:2px;color:#91a8b0;font-style:normal;font-size:7px;line-height:1.2}.advisor-apply{flex:0 0 auto;min-height:42px;padding-inline:14px}.advisor-auto-set{font-weight:900;white-space:nowrap;box-shadow:0 6px 18px #0007}
 .advisor-sort-label{display:block;margin:-2px 0 5px;text-align:right;font-size:8px;color:#81939b;letter-spacing:.04em}
 .reserve-grid .game-card{transition:transform .13s ease,box-shadow .13s ease}.reserve-grid .game-card.advisor-recommended{transform:translateY(-1px)}
 @media(max-aspect-ratio:1/1){
   body.late-depth #world canvas,body.final-boss-active #world canvas{will-change:filter}
   .deck-advisor{position:sticky;top:-1px;z-index:12;margin:5px 0 9px;padding:8px 9px;background:linear-gradient(135deg,rgba(43,24,59,.97),rgba(9,24,32,.98))}
-  .deck-advisor strong{font-size:12px}.deck-advisor small{font-size:7px}.advisor-apply{min-height:36px;padding:7px 9px;font-size:9px}
+  .deck-advisor strong{font-size:12px}.deck-advisor small{font-size:7px}.advisor-auto-note{font-size:6.5px}.advisor-apply{min-height:38px;padding:7px 10px;font-size:9px}
   .advisor-badges{top:22px;gap:2px}.advisor-badge{min-height:14px;padding:2px 4px;font-size:6.5px}
   .reward-footer{display:grid!important;grid-template-columns:1fr 1fr!important}.reward-footer p{grid-column:1/-1}.reward-footer .primary{grid-column:1/-1}
   .final-phase-badge{max-width:92vw}.final-phase-badge small{max-width:35vw}
