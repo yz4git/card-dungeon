@@ -1,11 +1,11 @@
-const CACHE = 'card-dungeon-v1.0.8';
+const CACHE = 'card-dungeon-v1.0.9';
 const CORE = [
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css',
   './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './lib/three.module.min.js','./assets/enemies.webp','./assets/icon.svg','./manifest.webmanifest'
 ];
 const NETWORK_FIRST = new Set([
-  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css',
+  './','./index.html','./style.css','./enhancements.css','./cinematic.css','./wide-dungeon.css','./battle-planning.css','./portrait-hand-fix.css','./battle-polish.css','./card-focus.css',
   './js/app.js','./js/enhancements.js','./js/cinematic.js','./js/battle-planning.js','./js/battle-polish.js','./js/data.js','./js/engine.js','./js/audio.js','./js/scene.js',
   './manifest.webmanifest'
 ].map(path=>new URL(path,self.registration.scope).pathname));
@@ -17,7 +17,6 @@ self.addEventListener('install', event => {
   event.waitUntil((async()=>{
     const cache=await caches.open(CACHE);
     await cache.addAll(CORE);
-    // Activate the new worker immediately, but never reload or redirect a running game.
     await self.skipWaiting();
   })());
 });
@@ -26,7 +25,6 @@ self.addEventListener('activate', event => {
   event.waitUntil((async()=>{
     const keys=await caches.keys();
     await Promise.all(keys.filter(key=>key.startsWith('card-dungeon-')&&key!==CACHE).map(key=>caches.delete(key)));
-    // Take over future requests without interrupting the currently running page.
     await self.clients.claim();
   })());
 });
