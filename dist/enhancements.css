@@ -5,11 +5,18 @@ body[data-mode="explore"] #world{background:radial-gradient(ellipse at 48% 28%,#
 
 /* Immediate left/right route readout. This is derived from the same revealed adjacent cells as the minimap. */
 #side-route-guide{position:absolute;inset:calc(72px + var(--safe-top)) 0 0;z-index:4;pointer-events:none;overflow:hidden}
-.side-route{position:absolute;top:42%;transform:translateY(-50%);display:flex;align-items:center;gap:7px;padding:10px 12px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px;text-shadow:0 2px 7px #000;backdrop-filter:blur(3px);transition:opacity .15s,transform .15s}
+.side-route{position:absolute;top:42%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:1px;text-shadow:0 2px 7px #000;backdrop-filter:blur(2px)}
 .side-route.left{left:max(10px,env(safe-area-inset-left))}.side-route.right{right:max(10px,env(safe-area-inset-right))}
-.side-route.path{color:#d5fff9;background:#12343ab8;border:1px solid #6adbd06b;box-shadow:0 0 24px #44d5ca1f,inset 0 0 18px #54d9ce12}
-.side-route.wall{color:#96a2a6;background:#111a20c9;border:1px solid #8a989b38;box-shadow:inset 0 0 14px #0005}
-.side-route .route-icon{font-family:Georgia,serif;font-size:25px;line-height:1;color:inherit}.side-route.wall .route-icon{font-size:29px;color:#708087}.side-route.path b{color:#e6fffb}.side-route.wall b{color:#9da7aa}
+.side-route.path{color:#dcfff9;background:#0b292eb0;border:1px solid #6adbd05e;box-shadow:0 0 24px #44d5ca1f}.side-route.wall{color:#aeb7ba;background:#11191fca;border:1px solid #8a989b38}
+.route-picture{position:relative;width:68px;height:76px;border-radius:5px;overflow:hidden;background:linear-gradient(#31474b,#111a20 68%,#080d11);box-shadow:inset 0 0 0 1px #cbd7d51c,inset 0 0 20px #0008}
+.route-frame{position:absolute;inset:5px;border:5px solid #53666a;border-bottom-width:7px;clip-path:polygon(0 0,100% 0,88% 100%,12% 100%);filter:drop-shadow(0 2px 3px #000)}
+.route-depth{position:absolute;left:22px;right:22px;top:20px;bottom:18px;background:linear-gradient(#091114,#172a2d);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%);box-shadow:0 0 12px #5ee0d224}
+.route-floor{position:absolute;left:10px;right:10px;bottom:7px;height:22px;background:linear-gradient(150deg,transparent 0 28%,#33484a 29% 36%,transparent 37% 61%,#33484a 62% 70%,transparent 71%);clip-path:polygon(32% 0,68% 0,100% 100%,0 100%);opacity:.85}
+.route-blocks{position:absolute;inset:7px;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(3,1fr);gap:3px;transform:skewY(-2deg)}
+.route-blocks i{display:block;border:1px solid #73808442;background:linear-gradient(135deg,#586469,#2c373c 62%,#1d2529);box-shadow:inset 0 0 5px #0008}
+.route-arrow{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);font:900 20px/1 ui-sans-serif,-apple-system,sans-serif;color:#dcfff9;text-shadow:0 2px 6px #000,0 0 8px #67e1d6}
+.side-route.path .route-blocks{display:none}.side-route.wall .route-depth,.side-route.wall .route-floor{display:none}.side-route.wall .route-arrow{color:#859296;text-shadow:0 2px 5px #000}.side-route.wall .route-picture{background:linear-gradient(#283237,#12191d)}
+.side-route.path b{color:#e9fffb}.side-route.wall b{color:#a6b0b3}
 
 /* Battle readability: explicit actor -> target -> result flow. */
 .battle-feedback.enhanced-feedback>h3,.battle-feedback.enhanced-feedback>p,.battle-feedback.enhanced-feedback>small{display:none}
@@ -20,20 +27,20 @@ body[data-mode="explore"] #world{background:radial-gradient(ellipse at 48% 28%,#
 
 /* The FX layer must sit above battle UI and HUD, but below modals/toasts. */
 #fx{z-index:30!important}
-#fx .combat-beam{position:absolute;height:5px;transform-origin:0 50%;border-radius:99px;opacity:0;animation:combatBeam .7s ease-out forwards;filter:drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor)}
+#fx .combat-beam{position:absolute;height:5px;transform-origin:0 50%;border-radius:99px;opacity:0;animation:combatBeam .88s ease-out forwards;filter:drop-shadow(0 0 10px currentColor) drop-shadow(0 0 18px currentColor)}
 #fx .combat-beam:after{content:"";position:absolute;right:-3px;top:50%;width:12px;height:12px;border-top:3px solid currentColor;border-right:3px solid currentColor;transform:translateY(-50%) rotate(45deg)}
 #fx .player-to-enemy{color:#ffe09f;background:linear-gradient(90deg,#74e1d8,#ffe09f)}#fx .enemy-to-player{color:#ff9b7d;background:linear-gradient(90deg,#ff9b7d,#df544b)}#fx .combat-beam.blocked{height:4px;filter:drop-shadow(0 0 8px currentColor)}
-#fx .combat-burst{position:absolute;transform:translate(-50%,-50%) scale(.7);padding:7px 11px;border-radius:6px;font-family:Georgia,serif;font-weight:700;font-size:30px;letter-spacing:.5px;text-shadow:0 2px 7px #000;white-space:nowrap;opacity:0;animation:combatBurst 1.05s cubic-bezier(.18,.84,.2,1) forwards;box-shadow:0 10px 35px #0007}
+#fx .combat-burst{position:absolute;transform:translate(-50%,-50%) scale(.7);padding:7px 11px;border-radius:6px;font-family:Georgia,serif;font-weight:700;font-size:30px;letter-spacing:.5px;text-shadow:0 2px 7px #000;white-space:nowrap;opacity:0;animation:combatBurst 1.45s cubic-bezier(.18,.84,.2,1) forwards;box-shadow:0 10px 35px #0007}
 #fx .damage-enemy{color:#ffe0bd;background:#7b351fcc;border:2px solid #ffb27d}#fx .damage-player{color:#ffd0c2;background:#7f2927d6;border:2px solid #ff7668}#fx .heal-player{color:#c9ffd5;background:#1f5e3ed6;border:2px solid #79dfa0;font-size:26px}#fx .block-player,#fx .block-enemy{color:#d4f5ff;background:#174d67dc;border:2px solid #78c9e7;font-size:23px;letter-spacing:1px}
 
-/* Large turn banner: always visible, including on phones and Reduce Motion. */
-#fx .combat-event-overlay{position:absolute;transform:translate(-50%,-50%);padding:7px;border-radius:8px;background:#071018f2;border:1px solid #d8c18d74;box-shadow:0 14px 46px #000d,0 0 26px #d9c17d12;opacity:0;animation:combatEvent 1.35s ease-out forwards;text-shadow:0 2px 8px #000}
-.combat-event-title{text-align:center;font-size:10px;letter-spacing:2px;color:#c7ad78;margin:0 0 5px}
-.combat-event-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto minmax(85px,auto);align-items:center;gap:6px;padding:6px 8px;border-radius:5px;font-size:11px;line-height:1.2}
-.combat-event-row+ .combat-event-row{margin-top:4px}.combat-event-row b{font-size:12px;color:#f0eadb}.combat-event-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.combat-event-row i{font-style:normal;color:#90a3aa;white-space:nowrap}.combat-event-row strong{text-align:right;font-size:12px;white-space:nowrap}.player-event{background:#233522b8;border:1px solid #d9c58230}.player-event span,.player-event strong{color:#f6d6a0}.enemy-event{background:#3a211fb8;border:1px solid #df806435}.enemy-event span,.enemy-event strong{color:#f0a58e}
-@keyframes combatBeam{0%{opacity:0;clip-path:inset(0 100% 0 0)}14%{opacity:1}68%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
-@keyframes combatBurst{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}16%{opacity:1;transform:translate(-50%,-55%) scale(1.2)}58%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-125%) scale(.94)}}
-@keyframes combatEvent{0%{opacity:0;transform:translate(-50%,-42%) scale(.94)}10%{opacity:1;transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-55%) scale(.99)}}
+/* One complete turn stays readable before the next turn begins. */
+#fx .combat-event-overlay{position:absolute;transform:translate(-50%,-50%);padding:8px;border-radius:9px;background:#071018f5;border:1px solid #d8c18d8c;box-shadow:0 14px 46px #000d,0 0 26px #d9c17d16;opacity:0;animation:combatEvent 1.95s ease-out forwards;text-shadow:0 2px 8px #000}
+.combat-event-title{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:10px;letter-spacing:2px;color:#c7ad78;margin:0 0 6px}.combat-event-title b{font:700 10px/1.2 ui-sans-serif,-apple-system,sans-serif;letter-spacing:.5px;color:#e7dfcb}
+.combat-event-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto minmax(90px,auto);align-items:center;gap:6px;padding:7px 8px;border-radius:5px;font-size:11px;line-height:1.2}
+.combat-event-row+.combat-event-row{margin-top:5px}.combat-event-row b{font-size:12px;color:#f0eadb}.combat-event-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.combat-event-row i{font-style:normal;color:#90a3aa;white-space:nowrap}.combat-event-row strong{text-align:right;font-size:12px;white-space:nowrap}.player-event{background:#233522c7;border:1px solid #d9c5823d}.player-event span,.player-event strong{color:#f6d6a0}.enemy-event{background:#3a211fc7;border:1px solid #df806444}.enemy-event span,.enemy-event strong{color:#f0a58e}.combat-event-next{text-align:right;padding:6px 3px 0;font:700 9px/1.2 ui-sans-serif,-apple-system,sans-serif;letter-spacing:.8px;color:#738991}
+@keyframes combatBeam{0%{opacity:0;clip-path:inset(0 100% 0 0)}12%{opacity:1}64%{opacity:1;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 0 0 0)}}
+@keyframes combatBurst{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}13%{opacity:1;transform:translate(-50%,-55%) scale(1.2)}65%{opacity:1;transform:translate(-50%,-72%) scale(1)}100%{opacity:0;transform:translate(-50%,-118%) scale(.94)}}
+@keyframes combatEvent{0%{opacity:0;transform:translate(-50%,-42%) scale(.94)}8%{opacity:1;transform:translate(-50%,-50%) scale(1)}82%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-54%) scale(.99)}}
 
 /* Make it unmistakable that the hand continues beyond the visible row(s). */
 .hand-scroll{position:relative;scrollbar-width:auto;scrollbar-color:#d2ba7a99 #14202a88;scroll-behavior:auto!important}
@@ -43,11 +50,18 @@ body[data-mode="explore"] #world{background:radial-gradient(ellipse at 48% 28%,#
 @keyframes scrollCuePulse{50%{transform:translateY(2px);box-shadow:0 7px 22px #0009,0 0 12px #d1b8791f}}
 
 @media(max-aspect-ratio:1/1){
-  #side-route-guide{inset:calc(62px + var(--safe-top)) 0 0}.side-route{top:20%;padding:7px 8px;font-size:11px}.side-route.left{left:6px}.side-route.right{right:6px}.side-route .route-icon{font-size:21px}.side-route.wall .route-icon{font-size:24px}
+  /* Portrait: use large pictorial wall/corridor windows on the actual dungeon view. */
+  #side-route-guide{inset:calc(60px + var(--safe-top)) 0 42%}
+  .side-route{top:38%;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none;gap:4px;width:31vw;max-width:132px}
+  .side-route.left{left:3px}.side-route.right{right:3px}
+  .route-picture{width:min(29vw,124px);height:min(36vw,150px);min-height:102px;border-radius:6px;border:1px solid #b7c4c129;box-shadow:0 8px 24px #0009,inset 0 0 0 1px #fff8}
+  .route-frame{inset:6px;border-width:6px;border-bottom-width:9px}.route-depth{left:30%;right:30%;top:21%;bottom:20%}.route-floor{left:12%;right:12%;bottom:6%;height:31%}.route-arrow{bottom:6px;font-size:26px}
+  .side-route b{padding:3px 8px;border-radius:99px;background:#071018c7;border:1px solid #ffffff1b;font-size:11px;letter-spacing:2px}
+  .side-route.path b{box-shadow:0 0 12px #5ee0d221}.side-route.wall b{box-shadow:0 4px 12px #0006}
   .combat-flow{gap:3px;margin-top:3px}.combat-flow-row{padding:3px 5px;font-size:10px}.combat-action{gap:3px}.combat-action b,.combat-outcome{font-size:10px}.combat-note{display:none}
-  #fx .combat-burst{font-size:23px;padding:5px 8px}.combat-event-row{grid-template-columns:42px minmax(0,1fr) auto minmax(76px,auto);gap:4px;padding:5px 6px;font-size:10px}.combat-event-row b,.combat-event-row strong{font-size:10px}.combat-event-title{font-size:9px}.hand-scroll-cue{font-size:10px;padding:4px 8px;margin-top:-25px}
+  #fx .combat-burst{font-size:24px;padding:5px 8px}.combat-event-row{grid-template-columns:42px minmax(0,1fr) auto minmax(82px,auto);gap:4px;padding:6px;font-size:10px}.combat-event-row b,.combat-event-row strong{font-size:10px}.combat-event-title{font-size:9px}.combat-event-title b{font-size:9px}.combat-event-next{font-size:8px}.hand-scroll-cue{font-size:10px;padding:4px 8px;margin-top:-25px}
 }
-@media(max-height:540px) and (min-aspect-ratio:1/1){.side-route{top:47%;padding:6px 8px}.combat-flow{gap:3px;margin-top:3px}.combat-flow-row{padding:3px 5px}.combat-note{display:none}.combat-event-row{padding:4px 6px}.combat-event-title{margin-bottom:3px}}
+@media(max-height:540px) and (min-aspect-ratio:1/1){.side-route{top:47%;padding:4px}.route-picture{width:58px;height:62px}.combat-flow{gap:3px;margin-top:3px}.combat-flow-row{padding:3px 5px}.combat-note{display:none}.combat-event-row{padding:5px 6px}.combat-event-title{margin-bottom:4px}}
 @media(prefers-reduced-motion:reduce){
   #fx .combat-beam,#fx .combat-burst,#fx .combat-event-overlay{animation:none!important;opacity:1!important}
   #fx .combat-burst{transform:translate(-50%,-72%) scale(1)!important}.hand-scroll-cue{animation:none!important}
