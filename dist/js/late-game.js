@@ -1,4 +1,4 @@
-import { SAVE_KEY, CARDS, TYPE, cardStats } from './data.js';
+import { SAVE_KEY, CARDS } from './data.js';
 import { recommendDeck, cardUtility, deckSummary, compareCard } from './deck-advisor.js';
 
 const NEW_KEY='card-dungeon-new-uids';
@@ -18,7 +18,10 @@ function readNew(){
   try{return new Set(JSON.parse(sessionStorage.getItem(NEW_KEY)||'[]'));}catch{return new Set();}
 }
 function writeNew(ids){
-  try{sessionStorage.setItem(NEW_KEY,JSON.stringify([...new Set(ids)]));}catch{}
+  try{
+    const next=JSON.stringify([...new Set(ids)]),prev=sessionStorage.getItem(NEW_KEY)||'[]';
+    if(next!==prev)sessionStorage.setItem(NEW_KEY,next);
+  }catch{}
 }
 function rememberClaim(){
   const g=readGame(),r=g?.reward;if(!r)return;
@@ -53,61 +56,61 @@ function decorateReward(g){
   root.querySelectorAll('.reward-cards .game-card[data-uid]').forEach(el=>{
     const card=g.reward.cards.find(c=>c.uid===el.dataset.uid);if(card)rewardInsight(el,card,g);
   });
-  const footer=root.querySelector('.reward-footer');
-  const claim=footer?.querySelector('[data-action="claim"]');
-  if(footer&&claim&&!footer.querySelector('[data-late-action="claim-deck"]')){
-    const b=document.createElement('button');
-    b.className='secondary reward-deck-button';b.dataset.lateAction='claim-deck';b.disabled=claim.disabled;
-    b.textContent=g.reward.kind==='victory'?'受け取ってデッキ編集':'持ち帰ってデッキ編集';
-    claim.before(b);
-  }
+  const footer=root.querySelector('.reward-footer'),claim=footer?.querySelector('[data-action="claim"]');
+  if(!footer||!claim)return;
+  let b=footer.querySelector('[data-late-action="claim-deck"]');
+  if(!b){b=document.createElement('button');b.className='secondary reward-deck-button';b.dataset.lateAction='claim-deck';b.textContent=g.reward.kind==='victory'?'受け取ってデッキ編集':'持ち帰ってデッキ編集';claim.before(b);}
+  if(b.disabled!==claim.disabled)b.disabled=claim.disabled;
 }
 function decorateTreasure(){rememberTreasure();}
 function findCard(g,uid){return g.collection.find(c=>c.uid===uid);}
+function badgeSpec(card,recommendedIds,newIds,selected,g){
+  const out=[];
+  if(newIds.has(card.uid))out.push(['NEW','new']);
+  if(recommendedIds.has(card.uid))out.push(['推奨','recommended']);
+  if(selected){const delta=compareCard(card,selected,g.floor);if(delta>=4)out.push([`交換 +${Math.round(delta)}`,'upgrade']);}
+  return out;
+}
 function decorateDeck(g){
   const modal=document.querySelector('.modal.wide-modal');
   const deckGrid=modal?.querySelector('.editor-deck'),reserve=modal?.querySelector('.reserve-grid');
   if(!modal||!deckGrid||!reserve)return;
-  const recommended=recommendDeck(g.collection,g.floor),recommendedIds=new Set(recommended.map(c=>c.uid)),newIds=readNew();
-  const summary=deckSummary(recommended);
+  const recommended=recommendDeck(g.collection,g.floor),recommendedIds=new Set(recommended.map(c=>c.uid)),newIds=readNew(),summary=deckSummary(recommended);
   let panel=modal.querySelector('.deck-advisor');
-  if(!panel){
-    panel=document.createElement('section');panel.className='deck-advisor';
-    const intro=modal.querySelector('.editor-intro');intro?.after(panel);
+  if(!panel){panel=document.createElement('section');panel.className='deck-advisor';modal.querySelector('.editor-intro')?.after(panel);}
+  const panelSig=[g.floor,summary.counts.attack,summary.counts.guard,summary.counts.heal,summary.counts.focus,summary.averageRank.toFixed(1),applying].join('|');
+  if(panel.dataset.signature!==panelSig){
+    panel.dataset.signature=panelSig;
+    panel.innerHTML=`<div><span class="advisor-kicker">SMART BUILD · B${g.floor}F</span><strong>オススメ15枚</strong><small>攻${summary.counts.attack}・防${summary.counts.guard}・回${summary.counts.heal}・強${summary.counts.focus} / 平均R ${summary.averageRank.toFixed(1)}</small></div><button class="secondary advisor-apply" data-late-action="apply-recommended" ${applying?'disabled':''}>${applying?'編成中…':'オススメ編成を適用'}</button>`;
   }
-  panel.innerHTML=`<div><span class="advisor-kicker">SMART BUILD · B${g.floor}F</span><strong>オススメ15枚</strong><small>攻${summary.counts.attack}・防${summary.counts.guard}・回${summary.counts.heal}・強${summary.counts.focus} / 平均R ${summary.averageRank.toFixed(1)}</small></div><button class="secondary advisor-apply" data-late-action="apply-recommended" ${applying?'disabled':''}>${applying?'編成中…':'オススメ編成を適用'}</button>`;
-  const selectedEl=deckGrid.querySelector('.game-card.selected');
-  const selected=findCard(g,selectedEl?.dataset.uid);
+  const selectedEl=deckGrid.querySelector('.game-card.selected'),selected=findCard(g,selectedEl?.dataset.uid);
   modal.querySelectorAll('.game-card[data-uid]').forEach(el=>{
     const card=findCard(g,el.dataset.uid);if(!card)return;
+    const isReserve=!!el.closest('.reserve-grid'),spec=badgeSpec(card,recommendedIds,newIds,isReserve?selected:null,g);
+    const sig=[recommendedIds.has(card.uid),newIds.has(card.uid),...spec.flat()].join('|');
+    if(el.dataset.advisorSignature===sig)return;
+    el.dataset.advisorSignature=sig;
     el.classList.toggle('advisor-recommended',recommendedIds.has(card.uid));
     el.classList.toggle('is-new-card',newIds.has(card.uid));
     el.querySelector(':scope > .advisor-badges')?.remove();
-    if(newIds.has(card.uid))addBadge(el,'NEW','new');
-    if(recommendedIds.has(card.uid))addBadge(el,'推奨','recommended');
-    if(selected&&el.closest('.reserve-grid')){
-      const delta=compareCard(card,selected,g.floor);
-      if(delta>=4)addBadge(el,`交換 +${Math.round(delta)}`,'upgrade');
-    }
+    spec.forEach(([label,cls])=>addBadge(el,label,cls));
   });
   const cards=[...reserve.querySelectorAll(':scope > .game-card[data-uid]')];
-  cards.sort((a,b)=>cardUtility(findCard(g,b.dataset.uid),g.floor)-cardUtility(findCard(g,a.dataset.uid),g.floor));
-  cards.forEach(el=>reserve.append(el));
-  let label=modal.querySelector('.advisor-sort-label');
-  if(!label){label=document.createElement('span');label.className='advisor-sort-label';label.textContent='おすすめ度の高い順';reserve.before(label);}
+  const sorted=[...cards].sort((a,b)=>cardUtility(findCard(g,b.dataset.uid),g.floor)-cardUtility(findCard(g,a.dataset.uid),g.floor));
+  if(cards.map(x=>x.dataset.uid).join('|')!==sorted.map(x=>x.dataset.uid).join('|'))sorted.forEach(el=>reserve.append(el));
+  if(!modal.querySelector('.advisor-sort-label')){const label=document.createElement('span');label.className='advisor-sort-label';label.textContent='おすすめ度の高い順';reserve.before(label);}
 }
 function decorateFinalBoss(g){
   const isFinal=g?.encounter?.id==='abyss-crown'||g?.battle?.enemy?.id==='abyss-crown';
   document.body.classList.toggle('final-boss-active',!!isFinal);
   if(!isFinal)return;
-  const enemy=g.battle?.enemy||g.encounter;
-  const turn=g.battle?.turn||0,phase=Math.min(2,Math.floor(turn/5));
+  const enemy=g.battle?.enemy||g.encounter,turn=g.battle?.turn||0,phase=Math.min(2,Math.floor(turn/5));
   const phaseInfo=enemy.phases?.[phase]||[{name:'鏡界',note:'守りを崩せ'},{name:'断界',note:'刃が加速する'},{name:'終焉',note:'最後の5手'}][phase];
   const target=document.querySelector('.battle-enemy,.encounter-label');
   if(target){
-    let badge=target.querySelector('.final-phase-badge');
-    if(!badge){badge=document.createElement('div');badge.className='final-phase-badge';target.prepend(badge);}
-    badge.innerHTML=`<b>PHASE ${phase+1}</b><span>${phaseInfo.name||''}</span><small>${phaseInfo.note||''}</small>`;
+    let badge=target.querySelector('.final-phase-badge');if(!badge){badge=document.createElement('div');badge.className='final-phase-badge';target.prepend(badge);}
+    const sig=`${phase}|${phaseInfo.name||''}|${phaseInfo.note||''}`;
+    if(badge.dataset.signature!==sig){badge.dataset.signature=sig;badge.innerHTML=`<b>PHASE ${phase+1}</b><span>${phaseInfo.name||''}</span><small>${phaseInfo.note||''}</small>`;}
   }
 }
 function decorateFloor(g){
@@ -116,12 +119,9 @@ function decorateFloor(g){
   if(!g||g.floor<6)return;
   const n=Math.min(10,g.floor);document.body.classList.add(`late-depth-${n}`);
   const info=FLOOR_NAMES[n],location=document.querySelector('.explore-screen .location');
-  if(info&&location){const eyebrow=location.querySelector('.eyebrow'),h2=location.querySelector('h2');if(eyebrow)eyebrow.textContent=info[0];if(h2)h2.textContent=info[1];}
+  if(info&&location){const eyebrow=location.querySelector('.eyebrow'),h2=location.querySelector('h2');if(eyebrow&&eyebrow.textContent!==info[0])eyebrow.textContent=info[0];if(h2&&h2.textContent!==info[1])h2.textContent=info[1];}
 }
-function decorate(){
-  const g=readGame();if(!g)return;
-  decorateFloor(g);decorateFinalBoss(g);decorateReward(g);decorateTreasure();decorateDeck(g);
-}
+function decorate(){const g=readGame();if(!g)return;decorateFloor(g);decorateFinalBoss(g);decorateReward(g);decorateTreasure();decorateDeck(g);}
 function queue(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;decorate();});}
 const sleep=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 async function applyRecommended(){
@@ -131,21 +131,18 @@ async function applyRecommended(){
     const target=recommendDeck(g.collection,g.floor),wanted=new Set(target.map(c=>c.uid));
     for(let guard=0;guard<20;guard++){
       g=readGame();if(!g)break;
-      const missing=target.find(c=>!g.deck.includes(c.uid));
-      if(!missing)break;
+      const missing=target.find(c=>!g.deck.includes(c.uid));if(!missing)break;
       const index=g.deck.findIndex(uid=>!wanted.has(uid));if(index<0)break;
-      document.querySelector(`.editor-deck [data-action="deck-slot"][data-index="${index}"]`)?.click();
-      await sleep();
-      const swap=document.querySelector(`.reserve-grid [data-action="swap"][data-uid="${missing.uid}"]`);
-      if(!swap)break;swap.click();await sleep();
+      document.querySelector(`.editor-deck [data-action="deck-slot"][data-index="${index}"]`)?.click();await sleep();
+      const swap=document.querySelector(`.reserve-grid [data-action="swap"][data-uid="${missing.uid}"]`);if(!swap)break;
+      swap.click();await sleep();
     }
   } finally {applying=false;queue();}
 }
 async function claimThenDeck(){
   rememberClaim();
   const claim=document.querySelector('.reward-footer [data-action="claim"]');if(!claim||claim.disabled)return;
-  claim.click();await sleep();await sleep();
-  document.querySelector('.explore-controls [data-action="deck"]')?.click();
+  claim.click();await sleep();await sleep();document.querySelector('.explore-controls [data-action="deck"]')?.click();
 }
 
 document.addEventListener('click',event=>{
