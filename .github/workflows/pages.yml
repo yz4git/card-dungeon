@@ -88,11 +88,15 @@ jobs:
               './portrait-hand-fix.css',
               './battle-polish.css',
               './card-focus.css',
+              './battle-actor-fx.css',
+              './encounter-transition.css',
               './js/app.js',
               './js/enhancements.js',
               './js/cinematic.js',
               './js/battle-planning.js',
               './js/battle-polish.js',
+              './js/battle-actor-fx.js',
+              './js/encounter-transition.js',
           ]
           for asset in assets:
               html = html.replace(asset, f'{asset}?v={sha}')
