@@ -37,17 +37,17 @@ export const ENEMIES = [
   { id: 'witch', name: '灯喰いの魔女', title: '緑炎のささやき', sprite: 1, hp: 39, deck: ['venom','focus','slash','heal','guard','drain','ward','venom','renew','pierce','guard','ambush','heal','slash','meditate'], flavor: '消えかけた灯りの奥で、呪いが息をする。', hint: '毒は3手続く。清め・解毒で消せる。' },
   { id: 'golem', name: '封印の石像', title: '目覚めた巨壁', sprite: 2, hp: 46, deck: ['bastion','focus','cleave','guard','slash','bastion','rupture','heal','guard','cleave','parry','focus','slash','bastion','cleave'], flavor: '石の継ぎ目から、太古の火が洩れる。', hint: '大きな盾には、貫通と盾砕きが有効。' },
   { id: 'warden', name: '深淵の守護者', title: '第五層の王', sprite: 3, hp: 49, deck: ['eclipse','aegis','focus','cleave','heal','parry','drain','bastion','ambush','renew','eclipse','ward','rupture','aegis','cleave'], flavor: 'その剣は、あなたの未来を断とうとしている。', hint: '防御を貫く月蝕に注意。回復の手も確保しよう。' },
-  { id: 'mirror', name: '鏡骸の剣士', title: '返る刃の残像', sprite: 0, hp: 45, deck: ['parry','ambush','pierce','guard','slash','thorns','focus','cleave','parry','pierce','aegis','rupture','slash','parry','ambush'], flavor: 'こちらが動くより先に、鏡の中の刃が答えを返す。', hint: '反撃が多い。攻撃しない手を混ぜ、隙に強い一撃を通そう。' },
-  { id: 'priest', name: '灰血の司祭', title: '枯れない血の祈り', sprite: 1, hp: 43, deck: ['venom','drain','renew','ward','slash','remedy','drain','focus','venom','aegis','heal','ambush','drain','renew','purge'], flavor: '奪った命を祈りに変え、何度でも立ち上がる。', hint: '毒と吸血で長期戦になる。清めと高火力を温存しよう。' },
-  { id: 'seer', name: '断章の予言者', title: '五手先の異端者', sprite: 2, hp: 44, deck: ['focus','ambush','guard','eclipse','meditate','pierce','heal','rupture','focus','cleave','ward','ambush','eclipse','parry','heal'], flavor: '予言は一行ずつ破れ、そのたびに攻撃が鋭くなる。', hint: '強化の次に重い攻撃が来る。5手の連鎖として読もう。' },
-  { id: 'abyss-crown', name: '深淵王・終式', title: '第十層の断界王', sprite: 3, hp: 68, hpBonus: 18, scripted: true, final: true, phases: [
+  { id: 'mirror', name: '鏡骸の剣士', title: '返る刃の残像', sprite: 0, hp: 42, deck: ['parry','guard','slash','heal','pierce','thorns','slash','focus','cleave','guard','aegis','rupture','slash','parry','ambush'], flavor: 'こちらが動くより先に、鏡の中の刃が答えを返す。', hint: '反撃が多い。攻撃しない手を混ぜ、隙に強い一撃を通そう。' },
+  { id: 'priest', name: '灰血の司祭', title: '枯れない血の祈り', sprite: 1, hp: 42, deck: ['venom','guard','renew','ward','slash','remedy','drain','focus','venom','aegis','heal','ambush','slash','renew','purge'], flavor: '奪った命を祈りに変え、何度でも立ち上がる。', hint: '毒と回復で長期戦になる。清めと高火力を温存しよう。' },
+  { id: 'seer', name: '断章の予言者', title: '五手先の異端者', sprite: 2, hp: 42, deck: ['focus','slash','guard','cleave','meditate','pierce','heal','rupture','focus','slash','ward','ambush','cleave','parry','pierce'], flavor: '予言は一行ずつ破れ、そのたびに攻撃が鋭くなる。', hint: '強化の次に重い攻撃が来る。5手の連鎖として読もう。' },
+  { id: 'abyss-crown', name: '深淵王・終式', title: '第十層の断界王', sprite: 3, hp: 65, hpBonus: 0, scripted: true, final: true, phases: [
       { name: '鏡界', note: '守りを剥がし、反撃を読む' },
       { name: '断界', note: '強化された刃が連鎖する' },
       { name: '終焉', note: '最後の5手を生き残れ' },
     ],
-    deck: ['bastion','parry','aegis','eclipse','renew','focus','rupture','eclipse','ambush','drain','eclipse','ward','focus','cleave','eclipse'],
+    deck: ['bastion','parry','aegis','eclipse','renew','focus','slash','guard','ambush','drain','eclipse','ward','focus','cleave','eclipse'],
     flavor: '第五層で見た守護者の影が裂け、王冠を戴いた本体が姿を現す。',
-    hint: '5手ごとに戦法が変わる。第二相以降は攻撃ランクも上昇する。'
+    hint: '5手ごとに戦法が変わる。後半ほどカードランクも上昇する。'
   },
 ];
 export function cardStats(card) {
