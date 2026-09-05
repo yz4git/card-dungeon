@@ -56,19 +56,20 @@ jobs:
               js = js.replace(old, new, 1)
           app.write_text(js, encoding='utf-8')
 
-          # Portrait exploration is rendered as an actual 16:10 view, not as a tall
-          # portrait projection with a larger vertical FOV. This gives a real ~97°
-          # horizontal field of view without mini side diagrams.
+          # Keep the renderer full portrait height. In exploration only, use an
+          # independent projection with a wide horizontal FOV while preserving a
+          # normal vertical FOV. This shows left/right adjacent cells without turning
+          # the picture itself into a letterboxed 16:10 frame.
           scene = Path('_site/js/scene.js')
           scene_js = scene.read_text(encoding='utf-8')
           size_old = "this.width=width;this.height=height;\n    if(this.fallback){this.canvas.width=width*Math.min(devicePixelRatio||1,1.5);this.canvas.height=height*Math.min(devicePixelRatio||1,1.5);return;}\n    this.renderer.setSize(width,height,false);this.camera.aspect=width/height;this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();"
-          size_new = "this.width=width;this.height=height;\n    const portraitExplore=height>width&&this.mode==='explore',renderHeight=portraitExplore?Math.max(1,Math.round(width/1.6)):height;this.renderHeight=renderHeight;\n    if(this.fallback){const dpr=Math.min(devicePixelRatio||1,1.5);this.canvas.width=width*dpr;this.canvas.height=renderHeight*dpr;return;}\n    this.renderer.setSize(width,renderHeight,false);this.camera.aspect=portraitExplore?1.6:width/height;this.camera.fov=portraitExplore?68:(height>width?70:65);this.camera.updateProjectionMatrix();"
+          size_new = "this.width=width;this.height=height;\n    if(this.fallback){this.canvas.width=width*Math.min(devicePixelRatio||1,1.5);this.canvas.height=height*Math.min(devicePixelRatio||1,1.5);return;}\n    this.renderer.setSize(width,height,false);const portraitExplore=height>width&&this.mode==='explore';if(portraitExplore){const near=this.camera.near,far=this.camera.far,v=THREE.MathUtils.degToRad(78),h=THREE.MathUtils.degToRad(112),top=Math.tan(v/2)*near,right=Math.tan(h/2)*near;this.camera.aspect=width/height;this.camera.fov=78;this.camera.projectionMatrix.makePerspective(-right,right,top,-top,near,far);this.camera.projectionMatrixInverse.copy(this.camera.projectionMatrix).invert();}else{this.camera.aspect=width/height;this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();}"
           tick_old = "this.camera.position.lerp(this.target,smooth);this.camera.rotation.y=this.angle;"
-          tick_new = "const desired=this._cameraTarget||(this._cameraTarget=new THREE.Vector3());desired.copy(this.target);if(this.mode==='explore'&&this.height>this.width){const back=.46;desired.x+=Math.sin(this.angle)*back;desired.z+=Math.cos(this.angle)*back;}this.camera.position.lerp(desired,smooth);this.camera.rotation.y=this.angle;"
+          tick_new = "const desired=this._cameraTarget||(this._cameraTarget=new THREE.Vector3());desired.copy(this.target);if(this.mode==='explore'&&this.height>this.width){const back=.42;desired.x+=Math.sin(this.angle)*back;desired.z+=Math.cos(this.angle)*back;}this.camera.position.lerp(desired,smooth);this.camera.rotation.y=this.angle;"
           fallback_old = "const a=-this.angle+(i/w-.5)*1.15;let d=.03;"
-          fallback_new = "const spread=(this.mode==='explore'&&this.height>this.width)?1.72:1.15,a=-this.angle+(i/w-.5)*spread;let d=.03;"
+          fallback_new = "const raySpread=(this.mode==='explore'&&this.height>this.width)?1.95:1.15,a=-this.angle+(i/w-.5)*raySpread;let d=.03;"
           fallback_cos_old = "const hh=Math.min(h,h/(d*Math.cos((i/w-.5)*1.15)*1.5)),shade=Math.max(19,85-d*12);"
-          fallback_cos_new = "const hh=Math.min(h,h/(d*Math.cos((i/w-.5)*spread)*1.5)),shade=Math.max(19,85-d*12);"
+          fallback_cos_new = "const hh=Math.min(h,h/(d*Math.cos((i/w-.5)*raySpread)*1.5)),shade=Math.max(19,85-d*12);"
           for old, new in [(size_old,size_new),(tick_old,tick_new),(fallback_old,fallback_new),(fallback_cos_old,fallback_cos_new)]:
               count = scene_js.count(old)
               if count != 1:
