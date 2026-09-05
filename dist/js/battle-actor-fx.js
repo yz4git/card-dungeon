@@ -9,7 +9,14 @@ const later=(fn,ms)=>{const id=setTimeout(fn,ms);state.timers.push(id);return id
 function clear(){state.timers.forEach(clearTimeout);state.timers=[];fx?.querySelectorAll('[class*="actor-"]').forEach(el=>el.remove());}
 function make(cls){const el=document.createElement('div');el.className=cls;fx?.append(el);return el;}
 function place(el,p){if(!el||!p)return;el.style.left=`${p.x}px`;el.style.top=`${p.y}px`;}
-function points(){const r=document.querySelector('.battle-stage')?.getBoundingClientRect();if(!r)return null;return{enemy:{x:r.left+r.width*.5,y:r.top+r.height*.39},player:{x:r.left+r.width*.5,y:r.bottom-Math.max(36,Math.min(62,r.height*.09))}};}
+function points(){
+  const stage=document.querySelector('.battle-stage')?.getBoundingClientRect();
+  if(!stage)return null;
+  const hand=document.querySelector('.battle-panel .hand-scroll')?.getBoundingClientRect();
+  const px=stage.left+stage.width*.5;
+  const py=hand?hand.top+hand.height*.5:stage.bottom-Math.max(36,Math.min(62,stage.height*.09));
+  return{enemy:{x:stage.left+stage.width*.5,y:stage.top+stage.height*.39},player:{x:px,y:py}};
+}
 function presence(p){const el=make('actor-player-presence');place(el,p);el.innerHTML='<i></i><i></i><b>YOU</b>';}
 function beam(from,to,side,pierce=false,counter=false){if(!from||!to)return;const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx)*180/Math.PI;const el=make(`actor-beam ${side}${pierce?' pierce':''}${counter?' counter':''}`);el.style.left=`${from.x}px`;el.style.top=`${from.y}px`;el.style.width=`${d}px`;el.style.transform=`rotate(${a}deg)`;el.innerHTML='<i class="actor-beam-glow"></i><i class="actor-beam-core"></i><i class="actor-beam-edge"></i><span></span><span></span><span></span><span></span>';}
 function impact(p,side,kind='hit',label=''){const el=make(`actor-impact ${side} ${kind}`);place(el,p);el.innerHTML='<i></i><i></i><i></i><i></i><b></b>'+(label?`<span>${label}</span>`:'');}
