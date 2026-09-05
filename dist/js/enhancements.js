@@ -101,8 +101,8 @@ function addCombatBanner(data){
   const banner=document.createElement('div');banner.className='combat-event-overlay';
   const playerResult=data.enemyDamage>0?`敵に −${data.enemyDamage} HP`:data.enemyBlocked?'敵が BLOCK':data.healPlayer>0?`自分 +${data.healPlayer} HP`:'効果発動';
   const enemyResult=data.playerDamage>0?`あなたに −${data.playerDamage} HP`:data.playerBlocked?'あなたが BLOCK':'効果発動';
-  banner.innerHTML=`<div class="combat-event-title">TURN ${data.turn}</div><div class="combat-event-row player-event"><b>あなた</b><span>${glyph(data.playerType)} ${data.playerCard}</span><i>→ 敵</i><strong>${playerResult}</strong></div><div class="combat-event-row enemy-event"><b>敵</b><span>${glyph(data.enemyType)} ${data.enemyCard}</span><i>→ あなた</i><strong>${enemyResult}</strong></div>`;
-  banner.style.left=`${r.left+r.width/2}px`;banner.style.top=`${Math.max(r.top+64,r.bottom-108)}px`;banner.style.width=`${Math.max(220,Math.min(440,r.width-18))}px`;
+  banner.innerHTML=`<div class="combat-event-title"><span>TURN ${String(data.turn).padStart(2,'0')}</span><b>この1手の結果</b></div><div class="combat-event-row player-event"><b>あなた</b><span>${glyph(data.playerType)} ${data.playerCard}</span><i>→ 敵</i><strong>${playerResult}</strong></div><div class="combat-event-row enemy-event"><b>敵</b><span>${glyph(data.enemyType)} ${data.enemyCard}</span><i>→ あなた</i><strong>${enemyResult}</strong></div><div class="combat-event-next">結果を確認 → 次のターン</div>`;
+  banner.style.left=`${r.left+r.width/2}px`;banner.style.top=`${Math.max(r.top+74,r.bottom-118)}px`;banner.style.width=`${Math.max(230,Math.min(460,r.width-16))}px`;
   fx.append(banner);
 }
 function playCombatFx(data){
@@ -120,7 +120,7 @@ function playCombatFx(data){
   if(data.playerDamage>0)addBurst(playerPoint,`あなた −${data.playerDamage}`,'damage-player');
   else if(data.playerBlocked)addBurst(playerPoint,'あなた BLOCK','block-player');
   if(data.healPlayer>0)addBurst(playerPoint,`あなた +${data.healPlayer}`,'heal-player',38);
-  setTimeout(clearCombatFx,1450);
+  setTimeout(clearCombatFx,2050);
 }
 
 function enhanceBattle(){
@@ -173,6 +173,10 @@ function neighborCell(cells,cols,currentIndex,facing,side){
   if(nr<0||nc<0||nc>=cols||nr>=Math.ceil(cells.length/cols))return null;
   return cells[nr*cols+nc]||null;
 }
+function routePicture(side,isPath){
+  const label=isPath?'通路':'壁';
+  return `<div class="route-picture" aria-label="${side==='left'?'左':'右'}は${label}"><span class="route-frame"></span><span class="route-depth"></span><span class="route-floor"></span><span class="route-blocks"><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="route-arrow">${side==='left'?'←':'→'}</span></div><b>${label}</b>`;
+}
 function enhanceSideRoutes(){
   let guide=document.getElementById('side-route-guide');
   if(document.body.dataset.mode!=='explore') {guide?.remove();return;}
@@ -186,7 +190,8 @@ function enhanceSideRoutes(){
   const right=neighborCell(cells,cols,currentIndex,facing,'right');
   const isPath=cell=>!!cell?.classList.contains('known');
   if(!guide){guide=document.createElement('div');guide.id='side-route-guide';guide.setAttribute('aria-hidden','true');app?.append(guide);}
-  guide.innerHTML=`<div class="side-route left ${isPath(left)?'path':'wall'}"><span class="route-icon">${isPath(left)?'←':'▌'}</span><b>${isPath(left)?'道':'壁'}</b></div><div class="side-route right ${isPath(right)?'path':'wall'}"><b>${isPath(right)?'道':'壁'}</b><span class="route-icon">${isPath(right)?'→':'▐'}</span></div>`;
+  const leftPath=isPath(left),rightPath=isPath(right);
+  guide.innerHTML=`<div class="side-route left ${leftPath?'path':'wall'}">${routePicture('left',leftPath)}</div><div class="side-route right ${rightPath?'path':'wall'}">${routePicture('right',rightPath)}</div>`;
 }
 
 function queueEnhance(){
