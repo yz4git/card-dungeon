@@ -39,6 +39,23 @@ jobs:
           from pathlib import Path
 
           sha = os.environ['BUILD_SHA'][:12]
+
+          # Keep the five-card planning rules unchanged, but give each resolved turn
+          # enough screen time to be understood on a phone before the next turn fires.
+          app = Path('_site/js/app.js')
+          js = app.read_text(encoding='utf-8')
+          pacing_replacements = [
+              ('scheduleTurn(450);', 'scheduleTurn(700);'),
+              ('function scheduleTurn(delay=1050/speed){', 'function scheduleTurn(delay=2300/speed){'),
+              ("}},700/speed);return;", "}},1550/speed);return;"),
+          ]
+          for old, new in pacing_replacements:
+              count = js.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one pacing marker {old!r}, found {count}')
+              js = js.replace(old, new, 1)
+          app.write_text(js, encoding='utf-8')
+
           index = Path('_site/index.html')
           html = index.read_text(encoding='utf-8')
           assets = [
