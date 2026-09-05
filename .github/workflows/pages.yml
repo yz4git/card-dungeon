@@ -56,14 +56,32 @@ jobs:
               js = js.replace(old, new, 1)
           app.write_text(js, encoding='utf-8')
 
+          # Portrait exploration should show the actual dungeon much wider instead of
+          # relying on side mini-diagrams. Increase horizontal coverage through a
+          # portrait-specific projection and move the viewpoint slightly back in the cell.
+          scene = Path('_site/js/scene.js')
+          scene_js = scene.read_text(encoding='utf-8')
+          size_old = "this.renderer.setSize(width,height,false);this.camera.aspect=width/height;this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();"
+          size_new = "this.renderer.setSize(width,height,false);this.camera.aspect=width/height;if(height>width&&this.mode==='explore'){const targetHFov=THREE.MathUtils.degToRad(72),wideFov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(targetHFov/2)/this.camera.aspect));this.camera.fov=Math.min(110,Math.max(88,wideFov));}else this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();"
+          tick_old = "this.camera.position.lerp(this.target,smooth);this.camera.rotation.y=this.angle;"
+          tick_new = "const desired=this._cameraTarget||(this._cameraTarget=new THREE.Vector3());desired.copy(this.target);if(this.mode==='explore'&&this.height>this.width){const back=.58;desired.x+=Math.sin(this.angle)*back;desired.z+=Math.cos(this.angle)*back;}this.camera.position.lerp(desired,smooth);this.camera.rotation.y=this.angle;"
+          for old, new in [(size_old,size_new),(tick_old,tick_new)]:
+              count = scene_js.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one scene marker, found {count}: {old[:70]!r}')
+              scene_js = scene_js.replace(old, new, 1)
+          scene.write_text(scene_js, encoding='utf-8')
+
           index = Path('_site/index.html')
           html = index.read_text(encoding='utf-8')
           assets = [
               './manifest.webmanifest',
               './style.css',
               './enhancements.css',
+              './cinematic.css',
               './js/app.js',
               './js/enhancements.js',
+              './js/cinematic.js',
           ]
           for asset in assets:
               html = html.replace(asset, f'{asset}?v={sha}')
