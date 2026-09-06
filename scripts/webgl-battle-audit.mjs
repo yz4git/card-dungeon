@@ -1,3 +1,4 @@
+// Post-polish real WebGL verification trigger.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 const require=createRequire(import.meta.url);
