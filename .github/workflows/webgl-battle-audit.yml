@@ -23,8 +23,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22.13.0
-      - name: Install isolated browser controller
+      - name: Install Japanese fonts and isolated browser controller
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk >/dev/null
+          fc-cache -f >/dev/null
           rm -rf .audit-runtime
           mkdir -p .audit-runtime
           printf '{"private":true,"type":"commonjs"}\n' > .audit-runtime/package.json
