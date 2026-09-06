@@ -1,0 +1,50 @@
+name: Card Dungeon Real WebGL Battle Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/webgl-battle-audit.mjs'
+      - '.github/workflows/webgl-battle-audit.yml'
+      - 'dist/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  webgl-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CARD_DUNGEON_CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - name: Install isolated browser controller
+        run: |
+          rm -rf .audit-runtime
+          mkdir -p .audit-runtime
+          printf '{"private":true,"type":"commonjs"}\n' > .audit-runtime/package.json
+          npm install --prefix .audit-runtime --no-package-lock --no-save --ignore-scripts --no-audit --no-fund playwright-core@1.55.0
+          google-chrome --version
+      - name: Serve production dist
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > /tmp/card-dungeon-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/card-dungeon-http.log
+          exit 1
+      - name: Run real WebGL playcheck
+        run: node scripts/webgl-battle-audit.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: card-dungeon-webgl-audit-${{ github.sha }}
+          path: artifacts/webgl-battle-audit
+          if-no-files-found: error
+          retention-days: 14
