@@ -63,7 +63,13 @@ const uids=await page.locator('.hand-scroll .game-card:not([disabled])').evaluat
 if(uids.length<5) throw new Error(`Only ${uids.length} selectable cards found`);
 for(const uid of uids){await page.locator(`.hand-scroll .game-card[data-uid="${uid}"]`).click({force:true});await page.waitForTimeout(35);}
 await page.locator('.battle-stage').scrollIntoViewIfNeeded();
+await page.waitForTimeout(80);
 await page.screenshot({path:`${out}/04-five-cards-planned.png`});
+const fiveCardCursor=await page.evaluate(()=>({
+  targetCount:document.querySelectorAll('.plan-slot.target').length,
+  activeLaneCount:document.querySelectorAll('.duel-lanes span.active').length,
+  prompt:document.querySelector('.plan-label small')?.textContent?.trim()||''
+}));
 
 await page.evaluate(()=>{
   window.__auditTurns=[];
@@ -104,13 +110,15 @@ await page.waitForTimeout(900);
 await page.screenshot({path:`${out}/09-next-window.png`});
 
 const postTurn5Mode=await page.evaluate(()=>({mode:document.body.dataset.mode,feedback:document.querySelector('.battle-feedback > .eyebrow')?.textContent||'',plan:document.querySelector('.plan-label small')?.textContent||''}));
-const diagnostics={sourceSha:process.env.GITHUB_SHA||null,renderState,turnHistory,turn5Seen,earlyOutcome,turn01Actors,turn05Actors,postTurn5Mode,consoleErrors,pageErrors,httpErrors};
+const diagnostics={sourceSha:process.env.GITHUB_SHA||null,renderState,fiveCardCursor,turnHistory,turn5Seen,earlyOutcome,turn01Actors,turn05Actors,postTurn5Mode,consoleErrors,pageErrors,httpErrors};
 await writeFile(`${out}/diagnostics.json`,JSON.stringify(diagnostics,null,2));
 await browser.close();
 
 const blockingHttp=httpErrors.filter(({url,status})=>!(status===404&&/(favicon\.ico|apple-touch-icon)/i.test(url)));
 if(!renderState.webgl) throw new Error(`WebGL unavailable: ${JSON.stringify(renderState)}`);
 if(!/SwiftShader|ANGLE/i.test(renderState.renderer||'')) throw new Error(`Unexpected renderer: ${renderState.renderer}`);
+if(fiveCardCursor.targetCount!==0||fiveCardCursor.activeLaneCount!==0) throw new Error(`Five-card cursor should be clear: ${JSON.stringify(fiveCardCursor)}`);
+if(!/5手の配置完了/.test(fiveCardCursor.prompt)) throw new Error(`Five-card completion prompt missing: ${fiveCardCursor.prompt}`);
 if(!turn5Seen&&!earlyOutcome) throw new Error(`TURN 05 missing without battle outcome: ${JSON.stringify(turnHistory)}`);
 if(consoleErrors.length) throw new Error(`Console errors: ${consoleErrors.join(' | ')}`);
 if(pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(' | ')}`);
