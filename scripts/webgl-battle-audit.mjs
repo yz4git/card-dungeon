@@ -65,7 +65,7 @@ for(let guard=0;guard<8;guard++){
     const text=button?.textContent||'';
     const m=text.match(/(\d)\s*\/\s*5/);
     const count=m?Number(m[1]):0;
-    const planned=new Set([...document.querySelectorAll('.plan-slot .game-card[data-uid]')].map(n=>n.dataset.uid));
+    const planned=new Set([...document.querySelectorAll('.hand-scroll .game-card.selected[data-uid]')].map(n=>n.dataset.uid));
     const candidates=[...document.querySelectorAll('.hand-scroll .game-card[data-uid]:not([disabled])')]
       .filter(n=>!planned.has(n.dataset.uid))
       .sort((a,b)=>Number(a.classList.contains('attack'))-Number(b.classList.contains('attack')));
