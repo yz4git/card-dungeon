@@ -92,8 +92,10 @@ scene_path.write_text(scene)
 
 sw=Path('dist/sw.js')
 text=sw.read_text()
-text=text.replace("const CACHE = 'card-dungeon-v1.1.6';","const CACHE = 'card-dungeon-v1.1.7';")
-if text==sw.read_text(): raise SystemExit('sw cache anchor not found')
+match=re.search(r"const CACHE = 'card-dungeon-v(\d+)\.(\d+)\.(\d+)';",text)
+if not match: raise SystemExit('sw cache version not found')
+major,minor,patch=map(int,match.groups())
+text=text[:match.start()]+f"const CACHE = 'card-dungeon-v{major}.{minor}.{patch+1}';"+text[match.end():]
 sw.write_text(text)
 
 print('Applied quality-preserving power optimizations')
