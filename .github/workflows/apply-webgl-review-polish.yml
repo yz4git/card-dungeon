@@ -1,0 +1,30 @@
+name: Apply WebGL Review Polish
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-webgl-review-polish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Apply reviewed visual fixes
+        run: python scripts/apply-webgl-review-polish.py
+      - name: Run regression checks
+        run: |
+          npm test
+          npm run validate
+      - name: Commit implementation
+        run: |
+          git config user.name "yz4git"
+          git config user.email "65384484+yz4git@users.noreply.github.com"
+          git add dist/js/app.js dist/js/battle-actor-fx.js dist/js/cinematic.js dist/js/scene.js dist/visual-cleanup.css dist/sw.js
+          git commit -m "Polish real WebGL battle and exploration presentation"
+          git push
