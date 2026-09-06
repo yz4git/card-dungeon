@@ -1,0 +1,40 @@
+name: Apply Quality-Preserving Power Optimizations
+
+on:
+  push:
+    paths:
+      - 'scripts/apply-power-optimizations.py'
+      - '.github/workflows/apply-power-optimizations.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply power optimizations
+        run: python3 scripts/apply-power-optimizations.py
+      - name: Run tests
+        run: npm test
+      - name: Validate static build
+        run: npm run validate
+      - name: Commit optimized runtime
+        run: |
+          git config user.name 'yz4git'
+          git config user.email '65384484+yz4git@users.noreply.github.com'
+          git add dist/js/scene.js dist/sw.js
+          if git diff --cached --quiet; then
+            echo 'No changes to commit'
+            exit 0
+          fi
+          git commit -m 'Reduce idle GPU load without lowering visual quality'
+          git push origin HEAD:main
