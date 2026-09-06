@@ -17,11 +17,13 @@ function points(){
   const px=stage.left+stage.width*.5;
   const py=hand?hand.top+hand.height*.5:stage.bottom-Math.max(36,Math.min(62,stage.height*.09));
   const lift=hand?Math.min(28,Math.max(18,hand.height*.16)):22;
+  const markerY=hand?Math.max(stage.top+stage.height*.62,hand.top-22):py-lift-18;
   return{
     enemy:{x:stage.left+stage.width*.5,y:stage.top+stage.height*.46},
     enemyFx:{x:stage.left+stage.width*.5,y:stage.top+stage.height*.51},
     player:{x:px,y:py},
-    playerFx:{x:px,y:py-lift}
+    playerFx:{x:px,y:py-lift},
+    playerMarker:{x:px,y:markerY}
   };
 }
 function presence(p){const el=make('actor-player-presence');place(el,p);el.innerHTML='<i></i><i></i><b>YOU</b>';}
@@ -66,7 +68,7 @@ function read(){
   return{label,playerCard:parts[0],enemyCard:parts[1],playerType:['attack','guard','heal','focus'].find(t=>document.querySelector('.plan-slot.active')?.classList.contains(t))||'focus',enemyType:['attack','guard','heal','focus'].find(t=>document.querySelector('.forecast-card.active')?.classList.contains(t))||'focus',enemyDamage:num(summary,/敵に\s*(\d+)/),playerDamage:num(summary,/被ダメージ\s*(\d+)/),playerBlocked:detail.includes('攻撃を防いだ'),enemyBlocked:detail.includes('敵が攻撃を防いだ'),playerCounter:num(detail,/あなたの反撃\s*(\d+)/),enemyCounter:num(detail,/敵の反撃\s*(\d+)/),playerPoison:num(detail,/あなたに毒\s*(\d+)/),enemyPoison:num(detail,/敵に毒\s*(\d+)/)};
 }
 function play(data){
-  clear();const p=points();if(!p)return;presence(p.player);
+  clear();const p=points();if(!p)return;presence(p.playerMarker);
   const pd=BY_NAME[data.playerCard]||{},ed=BY_NAME[data.enemyCard]||{};
   const playerFrom=data.playerType==='attack'?p.player:p.playerFx;
   const enemyFrom=data.enemyType==='attack'?p.enemy:p.enemyFx;

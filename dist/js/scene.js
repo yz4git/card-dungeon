@@ -158,7 +158,7 @@ export class DungeonView {
     if(this.mode==='title'){this.camera.position.x=Math.sin(this.time*.13)*.12;this.camera.rotation.y=Math.sin(this.time*.11)*.035;}
     this.lamp.position.copy(this.camera.position);this.lamp.position.x+=.5;this.lamp.position.y=2.1;this.lamp.intensity=20+Math.sin(this.time*7)*1.5+Math.sin(this.time*12)*.7;
     this.fill.position.copy(this.camera.position);this.fill.position.x-=Math.sin(this.angle)*5;this.fill.position.z-=Math.cos(this.angle)*5;this.fill.position.y=1.6;
-    for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible){const hit=item.active?(this.enemyHit||0):0;item.obj.position.x=(item.baseX??item.obj.position.x)+Math.sin(now*.19)*hit;item.obj.position.z=item.baseZ??item.obj.position.z;item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025+Math.abs(Math.sin(now*.14))*hit*.16;const sx=2.65*(1+hit*.12),sy=2.65*(1-hit*.08);item.obj.scale.set(sx,sy,1);}this.enemyHit=(this.enemyHit||0)*.72;
+    for(const item of this.eventMeshes)if(item.kind==='enemy'&&item.obj.visible){const hit=item.active?(this.enemyHit||0):0;item.obj.position.x=(item.baseX??item.obj.position.x)+Math.sin(now*.19)*hit;item.obj.position.z=item.baseZ??item.obj.position.z;item.obj.position.y=1.3+Math.sin(this.time*1.8+item.cell.x)*.025+Math.abs(Math.sin(now*.14))*hit*.16;const baseScale=item.active?2.65:2.30,sx=baseScale*(1+hit*.12),sy=baseScale*(1-hit*.08);item.obj.scale.set(sx,sy,1);}this.enemyHit=(this.enemyHit||0)*.72;
     this.renderer.render(this.scene,this.camera);
   }
 }
