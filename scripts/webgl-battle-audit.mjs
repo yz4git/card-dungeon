@@ -57,19 +57,35 @@ await page.screenshot({path:`${out}/03-battle-plan-top.png`});
 await page.locator('.hand-scroll').scrollIntoViewIfNeeded();
 await page.screenshot({path:`${out}/03b-battle-hand.png`});
 
-const uids=await page.locator('.hand-scroll .game-card:not([disabled])').evaluateAll(nodes=>[...nodes]
-  .sort((a,b)=>Number(a.classList.contains('attack'))-Number(b.classList.contains('attack')))
-  .slice(0,5).map(n=>n.dataset.uid));
-if(uids.length<5) throw new Error(`Only ${uids.length} selectable cards found`);
-for(const uid of uids){await page.locator(`.hand-scroll .game-card[data-uid="${uid}"]`).click({force:true});await page.waitForTimeout(35);}
+// Re-read the DOM after every pick because planning rerenders the hand. This avoids a stale
+// fifth UID leaving the audit at 4/5 after the no-auto-cursor planning fix.
+for(let guard=0;guard<8;guard++){
+  const state=await page.evaluate(()=>{
+    const button=document.querySelector('[data-action="resolve"]');
+    const text=button?.textContent||'';
+    const m=text.match(/(\d)\s*\/\s*5/);
+    const count=m?Number(m[1]):0;
+    const planned=new Set([...document.querySelectorAll('.plan-slot .game-card[data-uid]')].map(n=>n.dataset.uid));
+    const candidates=[...document.querySelectorAll('.hand-scroll .game-card[data-uid]:not([disabled])')]
+      .filter(n=>!planned.has(n.dataset.uid))
+      .sort((a,b)=>Number(a.classList.contains('attack'))-Number(b.classList.contains('attack')));
+    return {count,uid:candidates[0]?.dataset.uid||null};
+  });
+  if(state.count>=5)break;
+  if(!state.uid)throw new Error(`Could not find card for slot ${state.count+1}`);
+  await page.locator(`.hand-scroll .game-card[data-uid="${state.uid}"]`).click({force:true});
+  await page.waitForTimeout(90);
+}
 await page.locator('.battle-stage').scrollIntoViewIfNeeded();
-await page.waitForTimeout(80);
+await page.waitForTimeout(100);
 await page.screenshot({path:`${out}/04-five-cards-planned.png`});
 const fiveCardCursor=await page.evaluate(()=>({
   targetCount:document.querySelectorAll('.plan-slot.target').length,
   activeLaneCount:document.querySelectorAll('.duel-lanes span.active').length,
-  prompt:document.querySelector('.plan-label small')?.textContent?.trim()||''
+  prompt:document.querySelector('.plan-label small')?.textContent?.trim()||'',
+  resolveText:document.querySelector('[data-action="resolve"]')?.textContent?.trim()||''
 }));
+if(!/5\s*\/\s*5/.test(fiveCardCursor.resolveText))throw new Error(`Audit did not fill five slots: ${JSON.stringify(fiveCardCursor)}`);
 
 await page.evaluate(()=>{
   window.__auditTurns=[];
