@@ -1,0 +1,30 @@
+name: Fix Five Card Plan Cursor
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-plan-cursor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Apply plan cursor safety fix
+        run: python scripts/apply-plan-cursor-fix.py
+      - name: Run regression checks
+        run: |
+          npm test
+          npm run validate
+      - name: Commit implementation
+        run: |
+          git config user.name "yz4git"
+          git config user.email "65384484+yz4git@users.noreply.github.com"
+          git add dist/js/app.js dist/js/battle-planning.js dist/sw.js tests/plan-cursor.test.js
+          git commit -m "Prevent accidental overwrite after five-card planning"
+          git push
