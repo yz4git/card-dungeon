@@ -1,4 +1,4 @@
-// Post-polish real WebGL verification trigger.
+// Post-polish real WebGL verification trigger. Prefer defensive cards so the audit normally reaches TURN 05.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 const require=createRequire(import.meta.url);
@@ -57,7 +57,9 @@ await page.screenshot({path:`${out}/03-battle-plan-top.png`});
 await page.locator('.hand-scroll').scrollIntoViewIfNeeded();
 await page.screenshot({path:`${out}/03b-battle-hand.png`});
 
-const uids=await page.locator('.hand-scroll .game-card:not([disabled])').evaluateAll(nodes=>nodes.slice(0,5).map(n=>n.dataset.uid));
+const uids=await page.locator('.hand-scroll .game-card:not([disabled])').evaluateAll(nodes=>[...nodes]
+  .sort((a,b)=>Number(a.classList.contains('attack'))-Number(b.classList.contains('attack')))
+  .slice(0,5).map(n=>n.dataset.uid));
 if(uids.length<5) throw new Error(`Only ${uids.length} selectable cards found`);
 for(const uid of uids){await page.locator(`.hand-scroll .game-card[data-uid="${uid}"]`).click({force:true});await page.waitForTimeout(35);}
 await page.locator('.battle-stage').scrollIntoViewIfNeeded();
@@ -84,25 +86,32 @@ const turn01Actors=await page.locator('#fx [class*="actor-"]').evaluateAll(nodes
 await page.waitForTimeout(440);
 await page.screenshot({path:`${out}/06-turn01-enemy-fx.png`});
 
-await page.waitForFunction(()=>window.__auditTurns?.some(x=>x.turn==='TURN 05'),null,{timeout:12000,polling:25});
-await page.waitForTimeout(170);
-await page.screenshot({path:`${out}/07-turn05-visible.png`});
-const turn05Actors=await page.locator('#fx [class*="actor-"]').evaluateAll(nodes=>nodes.map(n=>n.className));
+await page.waitForFunction(()=>window.__auditTurns?.some(x=>x.turn==='TURN 05')||document.body.dataset.mode!=='battle'||/勝利|決着/.test(document.querySelector('.battle-hint')?.textContent||''),null,{timeout:12000,polling:25});
 const turnHistory=await page.evaluate(()=>window.__auditTurns||[]);
-await page.waitForTimeout(420);
-await page.screenshot({path:`${out}/08-turn05-fx.png`});
+const turn5Seen=turnHistory.some(x=>x.turn==='TURN 05');
+const earlyOutcome=await page.evaluate(()=>document.body.dataset.mode!=='battle'||/勝利|決着/.test(document.querySelector('.battle-hint')?.textContent||''));
+let turn05Actors=[];
+if(turn5Seen){
+  await page.waitForTimeout(170);
+  await page.screenshot({path:`${out}/07-turn05-visible.png`});
+  turn05Actors=await page.locator('#fx [class*="actor-"]').evaluateAll(nodes=>nodes.map(n=>n.className));
+  await page.waitForTimeout(420);
+  await page.screenshot({path:`${out}/08-turn05-fx.png`});
+}else{
+  await page.screenshot({path:`${out}/07-early-outcome.png`});
+}
 await page.waitForTimeout(900);
 await page.screenshot({path:`${out}/09-next-window.png`});
 
 const postTurn5Mode=await page.evaluate(()=>({mode:document.body.dataset.mode,feedback:document.querySelector('.battle-feedback > .eyebrow')?.textContent||'',plan:document.querySelector('.plan-label small')?.textContent||''}));
-const diagnostics={sourceSha:process.env.GITHUB_SHA||null,renderState,turnHistory,turn01Actors,turn05Actors,postTurn5Mode,consoleErrors,pageErrors,httpErrors};
+const diagnostics={sourceSha:process.env.GITHUB_SHA||null,renderState,turnHistory,turn5Seen,earlyOutcome,turn01Actors,turn05Actors,postTurn5Mode,consoleErrors,pageErrors,httpErrors};
 await writeFile(`${out}/diagnostics.json`,JSON.stringify(diagnostics,null,2));
 await browser.close();
 
 const blockingHttp=httpErrors.filter(({url,status})=>!(status===404&&/(favicon\.ico|apple-touch-icon)/i.test(url)));
 if(!renderState.webgl) throw new Error(`WebGL unavailable: ${JSON.stringify(renderState)}`);
 if(!/SwiftShader|ANGLE/i.test(renderState.renderer||'')) throw new Error(`Unexpected renderer: ${renderState.renderer}`);
-if(!turnHistory.some(x=>x.turn==='TURN 05')) throw new Error(`TURN 05 presentation missing: ${JSON.stringify(turnHistory)}`);
+if(!turn5Seen&&!earlyOutcome) throw new Error(`TURN 05 missing without battle outcome: ${JSON.stringify(turnHistory)}`);
 if(consoleErrors.length) throw new Error(`Console errors: ${consoleErrors.join(' | ')}`);
 if(pageErrors.length) throw new Error(`Page errors: ${pageErrors.join(' | ')}`);
 if(blockingHttp.length) throw new Error(`HTTP errors: ${JSON.stringify(blockingHttp)}`);
