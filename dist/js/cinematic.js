@@ -50,8 +50,8 @@ function cardIntro(data){
   if(!r||!fx)return;
   const intro=make('cinematic-turn');
   intro.style.left=`${r.left+r.width/2}px`;
-  intro.style.top=`${r.top+52}px`;
-  intro.style.width=`${Math.min(340,Math.max(250,r.width-34))}px`;
+  intro.style.top=`${r.top+32}px`;
+  intro.style.width=`${Math.min(330,Math.max(242,r.width-42))}px`;
   intro.innerHTML=
     `<div class="cine-turn-no">TURN ${String(data.turn).padStart(2,'0')}</div>`+
     `<div class="cine-card-row">`+
