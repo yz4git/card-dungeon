@@ -45,7 +45,7 @@ function enhancePlanning(){
   const forecasts=[...board.querySelectorAll('.forecast-card')];
   const slots=[...board.querySelectorAll('.plan-slot')];
   const foundTarget=slots.findIndex(slot=>slot.classList.contains('target'));
-  const targetIndex=Math.max(0,foundTarget);
+  const targetIndex=foundTarget;
 
   forecasts.forEach((card,index)=>{
     card.classList.toggle('paired-target',index===targetIndex);
