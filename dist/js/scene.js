@@ -19,11 +19,11 @@ export class DungeonView {
       this.fill=new THREE.PointLight(0x49d9df,10,16,1.7);this.scene.add(this.fill);
       this.group=new THREE.Group();this.scene.add(this.group);
       this.texture=new THREE.TextureLoader().load('./assets/enemies.webp',texture=>{for(const item of this.eventMeshes)if(item.spriteMaterial){item.spriteMaterial.map.source=texture.source;item.spriteMaterial.map.needsUpdate=true;}});this.texture.colorSpace=THREE.SRGBColorSpace;
-      this.geos={box:new THREE.BoxGeometry(1,1,1),plane:new THREE.PlaneGeometry(1,1),cylinder:new THREE.CylinderGeometry(.6,.65,.2,12), flame:new THREE.IcosahedronGeometry(.14,0)};
+      this.geos={box:new THREE.BoxGeometry(1,1,1),plane:new THREE.PlaneGeometry(1,1),ring:new THREE.RingGeometry(.58,.82,32),cylinder:new THREE.CylinderGeometry(.6,.65,.2,12), flame:new THREE.IcosahedronGeometry(.14,0)};
       this.stone=this.material(0x59606b, this.stoneTexture());
       this.floorMat=this.material(0x3e4a55,this.stoneTexture(true));this.pillarMat=this.material(0x343e4b);this.trimMat=this.material(0x73716a);
       this.bronze=this.material(0x796244);this.wood=this.material(0x503a2a);this.black=this.material(0x111a22);
-      this.teal=new THREE.MeshBasicMaterial({color:0x4abab8});this.gold=new THREE.MeshBasicMaterial({color:0xffcc80});
+      this.teal=new THREE.MeshBasicMaterial({color:0x4abab8});this.gold=new THREE.MeshBasicMaterial({color:0xffcc80});this.enemyGroundMat=new THREE.MeshBasicMaterial({color:0xff6c54,transparent:true,opacity:.34,depthWrite:false,side:THREE.DoubleSide});this.enemyGroundLineMat=new THREE.MeshBasicMaterial({color:0xffb087,transparent:true,opacity:.46,depthWrite:false,side:THREE.DoubleSide});
       this.resize=new ResizeObserver(()=>this.size());this.resize.observe(host);this.size();
     } catch(e) {this.startFallback();this.onFallback();}
     this.lastFrame=0;this.lastTime=performance.now();this.activeUntil=performance.now()+1600;this.raf=0;this.frameTimer=0;this.renderFrames=0;
@@ -81,7 +81,12 @@ export class DungeonView {
       if(['enemy','boss'].includes(c.event)){
         const sprite=c.enemyIndex||0,texture=this.texture.clone();texture.needsUpdate=true;texture.repeat.set(.5,.5);texture.offset.set((sprite%2)*.5,sprite<2?.5:0);
         const material=new THREE.SpriteMaterial({map:texture,transparent:true,alphaTest:.06,depthWrite:false});
-        const obj=new THREE.Sprite(material);obj.position.set(x,1.3,z);obj.scale.set(2.65,2.65,1);this.group.add(obj);this.eventMeshes.push({obj,cell:c,kind:'enemy',spriteMaterial:material});
+        const obj=new THREE.Sprite(material);obj.position.set(x,1.3,z);obj.scale.set(2.65,2.65,1);this.group.add(obj);
+        // Ground-locked depth cue: unlike the billboard sprite, this lies on the enemy's exact dungeon tile, so perspective makes one-vs-two-cell distance immediately readable.
+        const marker=new THREE.Group();marker.position.set(x,.012,z);
+        const ring=new THREE.Mesh(this.geos.ring,this.enemyGroundMat);ring.rotation.x=-Math.PI/2;marker.add(ring);
+        for(const a of [0,Math.PI/2]){const line=new THREE.Mesh(this.geos.plane,this.enemyGroundLineMat);line.rotation.x=-Math.PI/2;line.rotation.z=a;line.scale.set(1.6,.065,1);line.position.y=.002;marker.add(line);}
+        this.group.add(marker);this.eventMeshes.push({obj,marker,cell:c,kind:'enemy',spriteMaterial:material});
       } else if(c.event==='chest'){
         const obj=new THREE.Group();obj.position.set(x,0,z);this.group.add(obj);
         this.box(obj,this.wood,0,.32,0,.85,.58,.6);this.box(obj,this.bronze,0,.6,0,.9,.12,.66);
@@ -101,7 +106,7 @@ export class DungeonView {
     }
     this.batch(this.stone,walls);this.batch(this.floorMat,floors);this.batch(this.pillarMat,ceilings);this.batch(this.pillarMat,pillars);this.batch(this.trimMat,trims);
     // The dungeon geometry never moves after build. Freezing its transforms avoids thousands of matrix checks every rendered frame without changing pixels.
-    this.group.traverse(obj=>{if(obj===this.group||obj.isSprite)return;if(obj.matrixAutoUpdate){obj.updateMatrix();obj.matrixAutoUpdate=false;}});
+    this.group.traverse(obj=>{if(obj===this.group||obj.isSprite||this.eventMeshes.some(e=>e.marker===obj||e.marker?.children.includes(obj)))return;if(obj.matrixAutoUpdate){obj.updateMatrix();obj.matrixAutoUpdate=false;}});
     this.wake(1600);
   }
   title(){
@@ -120,11 +125,11 @@ export class DungeonView {
     let aim=-dir*Math.PI/2;while(aim-this.angle>Math.PI)aim-=Math.PI*2;while(aim-this.angle< -Math.PI)aim+=Math.PI*2;this.targetAngle=aim;
     if(instant&&this.camera){this.camera.position.copy(this.target);this.angle=aim;}
     for(const item of this.eventMeshes){
-      item.obj.visible=!item.cell.cleared||item.kind==='stairs';
+      item.obj.visible=!item.cell.cleared||item.kind==='stairs';if(item.marker)item.marker.visible=item.obj.visible;
       if(item.kind==='enemy'){
         const active=item.cell.x===p.x&&item.cell.z===p.z;
-        item.active=active&&inBattle;item.baseX=item.cell.x*TILE+(active?dx*.9:0);item.baseZ=item.cell.z*TILE+(active?dz*.9:0);item.obj.position.set(item.baseX,1.3,item.baseZ);
-        if(active&&inBattle)item.obj.visible=true;
+        item.active=active&&inBattle;item.baseX=item.cell.x*TILE+(active?dx*.9:0);item.baseZ=item.cell.z*TILE+(active?dz*.9:0);item.obj.position.set(item.baseX,1.3,item.baseZ);if(item.marker){item.marker.position.set(item.baseX,.012,item.baseZ);item.marker.visible=item.obj.visible;for(const child of item.marker.children)if(child.material)child.material.opacity=inBattle?.20:(active?.38:.34);}
+        if(active&&inBattle){item.obj.visible=true;if(item.marker)item.marker.visible=true;}
       }
     }
     this.battleView=inBattle;this.size();
