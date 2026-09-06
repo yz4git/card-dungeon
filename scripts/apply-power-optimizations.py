@@ -46,8 +46,8 @@ size_new="""  size(){
     const width=this.host.clientWidth||innerWidth,height=this.host.clientHeight||innerHeight;
     if(width===this.width&&height===this.height)return;
     this.width=width;this.height=height;
-    if(this.fallback){const ratio=Math.min(devicePixelRatio||1,1.5);this.canvas.width=width*ratio;this.canvas.height=height*ratio;this.wake(900);return;}
-    this.renderer.setSize(width,height,false);this.camera.aspect=width/height;this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();this.wake(900);
+    if(this.fallback){const ratio=Math.min(devicePixelRatio||1,1.5);this.canvas.width=width*ratio;this.canvas.height=height*ratio;if(this.raf!==undefined)this.wake(900);return;}
+    this.renderer.setSize(width,height,false);this.camera.aspect=width/height;this.camera.fov=height>width?70:65;this.camera.updateProjectionMatrix();if(this.raf!==undefined)this.wake(900);
   }"""
 scene,n=size_re.subn(size_new,scene,count=1)
 if n!=1: raise SystemExit('size method not found')
