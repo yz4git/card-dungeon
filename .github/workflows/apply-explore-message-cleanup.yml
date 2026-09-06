@@ -1,0 +1,62 @@
+name: Apply Exploration Message Cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-explore-message-cleanup.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+      - name: Remove persistent generic exploration message
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          app = Path('dist/js/app.js')
+          s = app.read_text(encoding='utf-8')
+          old = "  return{title:game.dungeon.steps===0?'迷宮の入口':`第${game.floor}層を探索中`,body:game.dungeon.steps===0?'前へ進み、最初の敵と向き合おう。':'地図を頼りに、下り階段を探そう。'};"
+          new = "  if(game.dungeon.steps===0)return{title:'迷宮の入口',body:'前へ進み、最初の敵と向き合おう。'};\n  return null;"
+          if s.count(old) != 1:
+              raise SystemExit(f'currentPrompt marker count={s.count(old)}')
+          s = s.replace(old, new, 1)
+
+          old2 = '<div class="explore-bottom"><div class="tile-prompt"><p class="eyebrow">${prompt.title}</p><p>${prompt.body}</p>${prompt.action?btn(prompt.label,prompt.action,\'primary tile-action\'):\'\'}</div><div class="explore-vitals">'
+          new2 = '<div class="explore-bottom">${prompt?`<div class="tile-prompt"><p class="eyebrow">${prompt.title}</p><p>${prompt.body}</p>${prompt.action?btn(prompt.label,prompt.action,\'primary tile-action\'):\'\'}</div>`:\'\'}<div class="explore-vitals">'
+          if s.count(old2) != 1:
+              raise SystemExit(f'renderExplore marker count={s.count(old2)}')
+          s = s.replace(old2, new2, 1)
+          app.write_text(s, encoding='utf-8')
+
+          sw = Path('dist/sw.js')
+          t = sw.read_text(encoding='utf-8')
+          old_cache = "const CACHE = 'card-dungeon-v1.1.11';"
+          new_cache = "const CACHE = 'card-dungeon-v1.1.12';"
+          if old_cache not in t:
+              raise SystemExit('Expected SW v1.1.11 marker')
+          sw.write_text(t.replace(old_cache, new_cache, 1), encoding='utf-8')
+          PY
+      - name: Run tests
+        run: npm test
+      - name: Validate static build
+        run: npm run validate
+      - name: Commit changes
+        run: |
+          git config user.name 'yz4git'
+          git config user.email '65384484+yz4git@users.noreply.github.com'
+          git add dist/js/app.js dist/sw.js
+          git commit -m 'Remove persistent exploration status message'
+          git push origin main
